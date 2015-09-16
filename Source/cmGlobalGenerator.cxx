@@ -1568,7 +1568,7 @@ void cmGlobalGenerator::CreateGeneratorTargets(TargetTypes targetTypes,
     this->GeneratorTargets[*j] = gt;
     generatorTargets[*j] = gt;
     }
-  mf->SetGeneratorTargets(generatorTargets);
+  lg->SetGeneratorTargets(generatorTargets);
 }
 
 //----------------------------------------------------------------------------
