@@ -702,6 +702,17 @@ cmMakefile::GetEvaluationFiles() const
   return this->EvaluationFiles;
 }
 
+std::vector<cmExportBuildFileGenerator*>
+cmMakefile::GetExportBuildFileGenerators() const
+{
+  return this->ExportBuildFileGenerators;
+}
+
+void cmMakefile::AddExportBuildFileGenerator(cmExportBuildFileGenerator* gen)
+{
+  this->ExportBuildFileGenerators.push_back(gen);
+}
+
 namespace
 {
   struct file_not_persistent
