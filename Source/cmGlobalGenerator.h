@@ -362,7 +362,9 @@ public:
   cmFileLockPool& GetFileLockPool() { return FileLockPool; }
 #endif
 
-  bool GetConfigureDoneCMP0026() const { return this->ConfigureDoneCMP0026; }
+  bool GetConfigureDoneCMP0026() const { return this->ConfigureDoneCMP0026AndCMP0024; }
+
+  void ComputeBuildFileGenerators();
 
   std::string MakeSilentFlag;
 protected:
@@ -520,7 +522,7 @@ protected:
   bool ForceUnixPaths;
   bool ToolSupportsColor;
   bool InstallTargetEnabled;
-  bool ConfigureDoneCMP0026;
+  bool ConfigureDoneCMP0026AndCMP0024;
 };
 
 #endif
