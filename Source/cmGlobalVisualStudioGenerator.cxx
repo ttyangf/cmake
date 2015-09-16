@@ -108,7 +108,7 @@ void cmGlobalVisualStudioGenerator::AddExtraIDETargets()
           i != gen.end(); ++i)
         {
         cmGeneratorTargetsType targets =
-            (*i)->GetMakefile()->GetGeneratorTargets();
+            (*i)->GetGeneratorTargets();
         for(cmGeneratorTargetsType::iterator t = targets.begin();
             t != targets.end(); ++t)
           {
