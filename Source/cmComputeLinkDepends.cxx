@@ -526,9 +526,8 @@ void cmComputeLinkDepends::AddVarLinkEntries(int depender_index,
           }
         }
 
-      cmGeneratorTarget* gtgt =
-          this->GlobalGenerator->GetGeneratorTarget(
-            this->FindTargetToLink(depender_index, *di));
+      const cmGeneratorTarget* gtgt =
+          this->FindTargetToLink(depender_index, *di);
       // If the library is meant for this link type then use it.
       if(llt == cmTarget::GENERAL || llt == this->LinkType)
         {
@@ -634,8 +633,9 @@ cmComputeLinkDepends::AddLinkEntries(
 }
 
 //----------------------------------------------------------------------------
-cmTarget const* cmComputeLinkDepends::FindTargetToLink(int depender_index,
-                                                 const std::string& name)
+cmGeneratorTarget const*
+cmComputeLinkDepends::FindTargetToLink(int depender_index,
+                                       const std::string& name)
 {
   // Look for a target in the scope of the depender.
   cmGeneratorTarget const* from = this->Target;
@@ -647,7 +647,9 @@ cmTarget const* cmComputeLinkDepends::FindTargetToLink(int depender_index,
       from = depender;
       }
     }
-  return from->Target->FindTargetToLink(name);
+
+  return this->GlobalGenerator->GetGeneratorTarget(
+        from->Target->FindTargetToLink(name));
 }
 
 //----------------------------------------------------------------------------
