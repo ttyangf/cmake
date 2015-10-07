@@ -773,8 +773,9 @@ std::set<cmLinkItem> const& cmGeneratorTarget::GetUtilityItems() const
     for(std::set<std::string>::const_iterator i = utilities.begin();
         i != utilities.end(); ++i)
       {
-      this->UtilityItems.insert(
-        cmLinkItem(*i, this->Makefile->FindTargetToUse(*i)));
+      cmGeneratorTarget* gt = this->GlobalGenerator
+          ->GetGeneratorTarget(this->Makefile->FindTargetToUse(*i));
+      this->UtilityItems.insert(cmLinkItem(*i, gt));
       }
     }
   return this->UtilityItems;
@@ -1728,15 +1729,12 @@ public:
         }
       return;
       }
-    if(!this->Visited.insert(item.Target).second)
+    if(!this->Visited.insert(item.Target->Target).second)
       {
       return;
       }
-    cmGeneratorTarget* gtgt =
-        this->Target->GetLocalGenerator()->GetGlobalGenerator()
-            ->GetGeneratorTarget(item.Target);
     cmLinkInterface const* iface =
-      gtgt->GetLinkInterface(this->Config, this->HeadTarget);
+      item.Target->GetLinkInterface(this->Config, this->HeadTarget);
     if(!iface) { return; }
 
     for(std::vector<std::string>::const_iterator
@@ -2070,12 +2068,11 @@ void processILibs(const std::string& config,
                   std::vector<cmTarget const*>& tgts,
                   std::set<cmTarget const*>& emitted)
 {
-  if (item.Target && emitted.insert(item.Target).second)
+  if (item.Target && emitted.insert(item.Target->Target).second)
     {
-    tgts.push_back(item.Target);
-    cmGeneratorTarget* gt = gg->GetGeneratorTarget(item.Target);
+    tgts.push_back(item.Target->Target);
     if(cmLinkInterfaceLibraries const* iface =
-       gt->GetLinkInterfaceLibraries(config, headTarget, true))
+       item.Target->GetLinkInterfaceLibraries(config, headTarget, true))
       {
       for(std::vector<cmLinkItem>::const_iterator
             it = iface->Libraries.begin();
@@ -4427,7 +4424,9 @@ void cmGeneratorTarget::LookupLinkItems(std::vector<std::string> const& names,
       {
       continue;
       }
-    items.push_back(cmLinkItem(name, this->Target->FindTargetToLink(name)));
+    cmGeneratorTarget* gt = this->GlobalGenerator
+        ->GetGeneratorTarget(this->Target->FindTargetToLink(name));
+    items.push_back(cmLinkItem(name, gt));
     }
 }
 
@@ -5397,9 +5396,10 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
         }
 
       // The entry is meant for this configuration.
+      cmTarget const* tgt = this->Target->FindTargetToLink(name);
+      cmGeneratorTarget* gt = this->GlobalGenerator->GetGeneratorTarget(tgt);
       impl.Libraries.push_back(
-        cmLinkImplItem(name, this->Target->FindTargetToLink(name),
-                       *btIt, evaluated != *le));
+        cmLinkImplItem(name, gt, *btIt, evaluated != *le));
       }
 
     std::set<std::string> const& seenProps = cge->GetSeenTargetProperties();
@@ -5428,9 +5428,10 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
         {
         continue;
         }
+      cmGeneratorTarget* gt = this->GlobalGenerator
+          ->GetGeneratorTarget(this->Target->FindTargetToLink(name));
       // Support OLD behavior for CMP0003.
-      impl.WrongConfigLibraries.push_back(
-        cmLinkItem(name, this->Target->FindTargetToLink(name)));
+      impl.WrongConfigLibraries.push_back(cmLinkItem(name, gt));
       }
     }
 }
