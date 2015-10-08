@@ -182,6 +182,8 @@ public:
                              const std::string& config,
                              const std::string& lang);
 
+  std::string GetProjectName() const;
+
   /** Compute the language used to compile the given source file.  */
   std::string GetSourceFileLanguage(const cmSourceFile& source);
 
@@ -252,6 +254,12 @@ public:
   bool NeedBackwardsCompatibility_2_4();
 
   cmake* GetCMakeInstance() const;
+
+  const char* GetSourceDirectory() const;
+  const char* GetBinaryDirectory() const;
+
+  const char* GetCurrentBinaryDirectory() const;
+  const char* GetCurrentSourceDirectory() const;
 
   /**
    * Generate a Mac OS X application bundle Info.plist file.
