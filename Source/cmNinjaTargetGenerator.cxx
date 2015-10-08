@@ -254,7 +254,7 @@ cmNinjaTargetGenerator
 
 std::string cmNinjaTargetGenerator::GetTargetOutputDir() const
 {
-  std::string dir = this->Target->GetDirectory(this->GetConfigName());
+  std::string dir = this->GeneratorTarget->GetDirectory(this->GetConfigName());
   return ConvertToNinjaPath(dir);
 }
 
@@ -289,7 +289,7 @@ bool cmNinjaTargetGenerator::SetMsvcTargetPdbVariable(cmNinjaVars& vars) const
        this->Target->GetType() == cmTarget::SHARED_LIBRARY ||
        this->Target->GetType() == cmTarget::MODULE_LIBRARY)
       {
-      pdbPath = this->Target->GetPDBDirectory(this->GetConfigName());
+      pdbPath = this->GeneratorTarget->GetPDBDirectory(this->GetConfigName());
       pdbPath += "/";
       pdbPath += this->GeneratorTarget->GetPDBName(this->GetConfigName());
       }
