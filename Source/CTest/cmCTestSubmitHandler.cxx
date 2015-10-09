@@ -338,7 +338,8 @@ bool cmCTestSubmitHandler::SubmitUsingHTTP(const std::string& localprefix,
   CURLcode res;
   FILE* ftpfile;
   char error_buffer[1024];
-  struct curl_slist *headers = ::curl_slist_append(NULL, "Content-Type: text/xml");
+  struct curl_slist *headers = ::curl_slist_append(NULL,
+                                                   "Content-Type: text/xml");
 
   /* In windows, this will init the winsock stuff */
   ::curl_global_init(CURL_GLOBAL_ALL);
