@@ -642,7 +642,8 @@ cmMakefileTargetGenerator
     this->LocalGenerator->ExpandRuleVariables(compileCommand, vars);
     std::string workingDirectory =
       this->LocalGenerator->Convert(
-        this->LocalGenerator->GetCurrentBinaryDirectory(), cmLocalGenerator::FULL);
+        this->LocalGenerator->GetCurrentBinaryDirectory(),
+                                    cmLocalGenerator::FULL);
     compileCommand.replace(compileCommand.find(langFlags),
                            langFlags.size(), this->GetFlags(lang));
     std::string langDefines = std::string("$(") + lang + "_DEFINES)";
