@@ -570,7 +570,6 @@ cmGlobalXCodeGenerator::AddExtraTargets(cmLocalGenerator* root,
 void cmGlobalXCodeGenerator::CreateReRunCMakeFile(
   cmLocalGenerator* root, std::vector<cmLocalGenerator*> const& gens)
 {
-  cmMakefile* mf = root->GetMakefile();
   std::vector<std::string> lfiles;
   for(std::vector<cmLocalGenerator*>::const_iterator gi = gens.begin();
       gi != gens.end(); ++gi)
