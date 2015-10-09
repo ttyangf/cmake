@@ -1428,7 +1428,8 @@ bool cmGeneratorTarget::HasMacOSXRpathInstallNameDir(
     w << " less than 10.5 or because CMake's platform configuration is";
     w << " corrupt.";
     cmake* cm = this->Makefile->GetCMakeInstance();
-    cm->IssueMessage(cmake::FATAL_ERROR, w.str(), this->Target->GetBacktrace());
+    cm->IssueMessage(cmake::FATAL_ERROR, w.str(),
+                     this->Target->GetBacktrace());
     }
 
   return true;
