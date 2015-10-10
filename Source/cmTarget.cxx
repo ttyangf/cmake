@@ -1162,7 +1162,7 @@ void cmTarget::GatherDependenciesForVS6( const cmMakefile& mf,
 
     // Parse the dependency information, which is a set of
     // type, library pairs separated by ";". There is always a trailing ";".
-    cmTarget::LinkLibraryType llt = GENERAL_LibraryType;
+    cmTargetLinkLibraryType llt = GENERAL_LibraryType;
     std::string depline = deps;
     std::string::size_type start = 0;
     std::string::size_type end;
