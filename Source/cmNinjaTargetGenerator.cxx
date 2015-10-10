@@ -92,7 +92,7 @@ std::string cmNinjaTargetGenerator::LanguageCompilerRule(
   const std::string& lang) const
 {
   return lang + "_COMPILER__" +
-    cmGlobalNinjaGenerator::EncodeRuleName(this->Target->GetName());
+    cmGlobalNinjaGenerator::EncodeRuleName(this->GeneratorTarget->GetName());
 }
 
 std::string
@@ -189,8 +189,8 @@ ComputeDefines(cmSourceFile const* source, const std::string& language)
 cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
 {
   // Static libraries never depend on other targets for linking.
-  if (this->Target->GetType() == cmTarget::STATIC_LIBRARY ||
-      this->Target->GetType() == cmTarget::OBJECT_LIBRARY)
+  if (this->GeneratorTarget->GetType() == cmTarget::STATIC_LIBRARY ||
+      this->GeneratorTarget->GetType() == cmTarget::OBJECT_LIBRARY)
     return cmNinjaDeps();
 
   cmComputeLinkInformation* cli =
@@ -218,7 +218,8 @@ cmNinjaDeps cmNinjaTargetGenerator::ComputeLinkDeps() const
     }
 
   // Add user-specified dependencies.
-  if (const char* linkDepends = this->Target->GetProperty("LINK_DEPENDS"))
+  if (const char* linkDepends =
+      this->GeneratorTarget->GetProperty("LINK_DEPENDS"))
     {
     std::vector<std::string> linkDeps;
     cmSystemTools::ExpandListArgument(linkDepends, linkDeps);
@@ -271,7 +272,7 @@ cmNinjaTargetGenerator
 
 std::string cmNinjaTargetGenerator::GetTargetName() const
 {
-  return this->Target->GetName();
+  return this->GeneratorTarget->GetName();
 }
 
 
@@ -283,10 +284,10 @@ bool cmNinjaTargetGenerator::SetMsvcTargetPdbVariable(cmNinjaVars& vars) const
     {
     std::string pdbPath;
     std::string compilePdbPath;
-    if(this->Target->GetType() == cmTarget::EXECUTABLE ||
-       this->Target->GetType() == cmTarget::STATIC_LIBRARY ||
-       this->Target->GetType() == cmTarget::SHARED_LIBRARY ||
-       this->Target->GetType() == cmTarget::MODULE_LIBRARY)
+    if(this->GeneratorTarget->GetType() == cmTarget::EXECUTABLE ||
+       this->GeneratorTarget->GetType() == cmTarget::STATIC_LIBRARY ||
+       this->GeneratorTarget->GetType() == cmTarget::SHARED_LIBRARY ||
+       this->GeneratorTarget->GetType() == cmTarget::MODULE_LIBRARY)
       {
       pdbPath = this->GeneratorTarget->GetPDBDirectory(this->GetConfigName());
       pdbPath += "/";
@@ -410,7 +411,7 @@ cmNinjaTargetGenerator
   if (!compileCmds.empty() && (lang == "C" || lang == "CXX"))
     {
     std::string const iwyu_prop = lang + "_INCLUDE_WHAT_YOU_USE";
-    const char *iwyu = this->Target->GetProperty(iwyu_prop);
+    const char *iwyu = this->GeneratorTarget->GetProperty(iwyu_prop);
     if (iwyu && *iwyu)
       {
       std::string run_iwyu =
@@ -427,7 +428,7 @@ cmNinjaTargetGenerator
   if (!compileCmds.empty() && (lang == "C" || lang == "CXX"))
     {
     std::string const clauncher_prop = lang + "_COMPILER_LAUNCHER";
-    const char *clauncher = this->Target->GetProperty(clauncher_prop);
+    const char *clauncher = this->GeneratorTarget->GetProperty(clauncher_prop);
     if (clauncher && *clauncher)
       {
       std::vector<std::string> launcher_cmd;
