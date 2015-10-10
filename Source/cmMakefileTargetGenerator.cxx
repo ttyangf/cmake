@@ -245,7 +245,8 @@ void cmMakefileTargetGenerator::WriteCommonCodeRules()
     // Write an empty dependency file.
     cmGeneratedFileStream depFileStream(dependFileNameFull.c_str());
     depFileStream
-      << "# Empty dependencies file for " << this->Target->GetName() << ".\n"
+      << "# Empty dependencies file for "
+      << this->GeneratorTarget->GetName() << ".\n"
       << "# This may be replaced when dependencies are built." << std::endl;
     }
 
