@@ -449,6 +449,9 @@ private:
     std::string SharedDeps;
   };
 
+  typedef std::map<std::string, ImportInfo> ImportInfoMapType;
+  mutable ImportInfoMapType ImportInfoMap;
+
   ImportInfo const* GetImportInfo(const std::string& config) const;
   void ComputeImportInfo(std::string const& desired_config,
                          ImportInfo& info) const;
@@ -471,6 +474,8 @@ private:
                             std::string const& suffix,
                             std::string const& name,
                             const char* version) const;
+
+  cmListFileBacktrace Backtrace;
 };
 
 #ifdef CMAKE_BUILD_WITH_CMAKE

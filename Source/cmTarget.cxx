@@ -64,22 +64,6 @@ const char* cmTarget::GetTargetTypeName(TargetType targetType)
 class cmTargetInternals
 {
 public:
-  cmTargetInternals()
-    : Backtrace()
-    {
-    }
-  cmTargetInternals(cmTargetInternals const&)
-    : Backtrace()
-    {
-    }
-  ~cmTargetInternals();
-
-  // The backtrace when the target was created.
-  cmListFileBacktrace Backtrace;
-
-  typedef std::map<std::string, cmTarget::ImportInfo> ImportInfoMapType;
-  ImportInfoMapType ImportInfoMap;
-
   std::vector<std::string> IncludeDirectoriesEntries;
   std::vector<cmListFileBacktrace> IncludeDirectoriesBacktraces;
   std::vector<std::string> CompileOptionsEntries;
@@ -93,11 +77,6 @@ public:
   std::vector<std::string> LinkImplementationPropertyEntries;
   std::vector<cmListFileBacktrace> LinkImplementationPropertyBacktraces;
 };
-
-//----------------------------------------------------------------------------
-cmTargetInternals::~cmTargetInternals()
-{
-}
 
 //----------------------------------------------------------------------------
 cmTarget::cmTarget()
@@ -255,7 +234,7 @@ void cmTarget::SetMakefile(cmMakefile* mf)
     }
 
   // Save the backtrace of target construction.
-  this->Internal->Backtrace = this->Makefile->GetBacktrace();
+  this->Backtrace = this->Makefile->GetBacktrace();
 
   if (!this->IsImported())
     {
@@ -378,7 +357,7 @@ void cmTarget::FinishConfigure()
 //----------------------------------------------------------------------------
 cmListFileBacktrace const& cmTarget::GetBacktrace() const
 {
-  return this->Internal->Backtrace;
+  return this->Backtrace;
 }
 
 //----------------------------------------------------------------------------
@@ -1556,7 +1535,7 @@ void cmTarget::MaybeInvalidatePropertyCache(const std::string& prop)
   // Wipe out maps caching information affected by this property.
   if(this->IsImported() && cmHasLiteralPrefix(prop, "IMPORTED"))
     {
-    this->Internal->ImportInfoMap.clear();
+    this->ImportInfoMap.clear();
     }
 }
 
@@ -2306,16 +2285,15 @@ cmTarget::GetImportInfo(const std::string& config) const
     {
     config_upper = "NOCONFIG";
     }
-  typedef cmTargetInternals::ImportInfoMapType ImportInfoMapType;
 
   ImportInfoMapType::const_iterator i =
-    this->Internal->ImportInfoMap.find(config_upper);
-  if(i == this->Internal->ImportInfoMap.end())
+    this->ImportInfoMap.find(config_upper);
+  if(i == this->ImportInfoMap.end())
     {
     ImportInfo info;
     this->ComputeImportInfo(config_upper, info);
     ImportInfoMapType::value_type entry(config_upper, info);
-    i = this->Internal->ImportInfoMap.insert(entry).first;
+    i = this->ImportInfoMap.insert(entry).first;
     }
 
   if(this->GetType() == INTERFACE_LIBRARY)
