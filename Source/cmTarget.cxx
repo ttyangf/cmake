@@ -382,6 +382,21 @@ cmListFileBacktrace const& cmTarget::GetBacktrace() const
 }
 
 //----------------------------------------------------------------------------
+std::string cmTarget::GetSupportDirectory() const
+{
+  std::string dir = this->Makefile->GetCurrentBinaryDirectory();
+  dir += cmake::GetCMakeFilesDirectory();
+  dir += "/";
+  dir += this->Name;
+#if defined(__VMS)
+  dir += "_dir";
+#else
+  dir += ".dir";
+#endif
+  return dir;
+}
+
+//----------------------------------------------------------------------------
 bool cmTarget::IsExecutableWithExports() const
 {
   return (this->GetType() == cmTarget::EXECUTABLE &&
@@ -2181,6 +2196,26 @@ void cmTarget::ComputeVersionedName(std::string& vName,
     vName += version;
     }
   vName += this->IsApple? suffix : std::string();
+}
+
+//----------------------------------------------------------------------------
+bool cmTarget::HasImplibGNUtoMS() const
+{
+  return this->HasImportLibrary() && this->GetPropertyAsBool("GNUtoMS");
+}
+
+//----------------------------------------------------------------------------
+bool cmTarget::GetImplibGNUtoMS(std::string const& gnuName,
+                                std::string& out, const char* newExt) const
+{
+  if(this->HasImplibGNUtoMS() &&
+     gnuName.size() > 6 && gnuName.substr(gnuName.size()-6) == ".dll.a")
+    {
+    out = gnuName.substr(0, gnuName.size()-6);
+    out += newExt? newExt : ".lib";
+    return true;
+    }
+  return false;
 }
 
 //----------------------------------------------------------------------------
