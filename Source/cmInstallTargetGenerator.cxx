@@ -565,8 +565,8 @@ cmInstallTargetGenerator
     {
     std::set<cmGeneratorTarget const*> const& sharedLibs
                                             = cli->GetSharedLibrariesLinked();
-    for(std::set<cmGeneratorTarget const*>::const_iterator j = sharedLibs.begin();
-        j != sharedLibs.end(); ++j)
+    for(std::set<cmGeneratorTarget const*>::const_iterator j
+        = sharedLibs.begin(); j != sharedLibs.end(); ++j)
       {
       cmGeneratorTarget const* tgt = *j;
 
