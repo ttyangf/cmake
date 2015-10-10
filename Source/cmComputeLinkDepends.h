@@ -157,7 +157,7 @@ private:
   void CheckWrongConfigItem(cmLinkItem const& item);
 
   int ComponentOrderId;
-  cmTargetLinkLibraryType LinkType;
+  cmTarget::LinkLibraryType LinkType;
   bool HasConfig;
   bool DebugMode;
   bool OldLinkDirMode;

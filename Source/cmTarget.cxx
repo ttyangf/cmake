@@ -632,13 +632,13 @@ const std::vector<std::string>& cmTarget::GetLinkDirectories() const
 }
 
 //----------------------------------------------------------------------------
-cmTargetLinkLibraryType cmTarget::ComputeLinkType(
+cmTarget::LinkLibraryType cmTarget::ComputeLinkType(
                                       const std::string& config) const
 {
   // No configuration is always optimized.
   if(config.empty())
     {
-    return OPTIMIZED_LibraryType;
+    return cmTarget::OPTIMIZED;
     }
 
   // Get the list of configurations considered to be DEBUG.
@@ -650,10 +650,10 @@ cmTargetLinkLibraryType cmTarget::ComputeLinkType(
   if (std::find(debugConfigs.begin(), debugConfigs.end(), configUpper) !=
       debugConfigs.end())
     {
-    return DEBUG_LibraryType;
+    return cmTarget::DEBUG;
     }
   // The current configuration is not a debug configuration.
-  return OPTIMIZED_LibraryType;
+  return cmTarget::OPTIMIZED;
 }
 
 //----------------------------------------------------------------------------
@@ -693,9 +693,9 @@ bool cmTarget::NameResolvesToFramework(const std::string& libname) const
 
 //----------------------------------------------------------------------------
 std::string cmTarget::GetDebugGeneratorExpressions(const std::string &value,
-                                  cmTargetLinkLibraryType llt) const
+                                  cmTarget::LinkLibraryType llt) const
 {
-  if (llt == GENERAL_LibraryType)
+  if (llt == GENERAL)
     {
     return value;
     }
@@ -716,7 +716,7 @@ std::string cmTarget::GetDebugGeneratorExpressions(const std::string &value,
     configString = "$<OR:" + configString + ">";
     }
 
-  if (llt == OPTIMIZED_LibraryType)
+  if (llt == OPTIMIZED)
     {
     configString = "$<NOT:" + configString + ">";
     }
@@ -773,16 +773,15 @@ void cmTarget::GetTllSignatureTraces(std::ostringstream &s,
 void cmTarget::AddLinkLibrary(cmMakefile& mf,
                               const std::string& target,
                               const std::string& lib,
-                              cmTargetLinkLibraryType llt)
+                              LinkLibraryType llt)
 {
   cmTarget *tgt = this->Makefile->FindTargetToUse(lib);
   {
   const bool isNonImportedTarget = tgt && !tgt->IsImported();
 
-  const std::string libName =
-      (isNonImportedTarget && llt != GENERAL_LibraryType)
-      ? targetNameGenex(lib)
-      : lib;
+  const std::string libName = (isNonImportedTarget && llt != GENERAL)
+                                                        ? targetNameGenex(lib)
+                                                        : lib;
   this->AppendProperty("LINK_LIBRARIES",
                        this->GetDebugGeneratorExpressions(libName,
                                                           llt).c_str());
@@ -823,13 +822,13 @@ void cmTarget::AddLinkLibrary(cmMakefile& mf,
       }
     switch (llt)
       {
-      case GENERAL_LibraryType:
+      case cmTarget::GENERAL:
         dependencies += "general";
         break;
-      case DEBUG_LibraryType:
+      case cmTarget::DEBUG:
         dependencies += "debug";
         break;
-      case OPTIMIZED_LibraryType:
+      case cmTarget::OPTIMIZED:
         dependencies += "optimized";
         break;
       }
@@ -1163,7 +1162,7 @@ void cmTarget::GatherDependenciesForVS6( const cmMakefile& mf,
 
     // Parse the dependency information, which is a set of
     // type, library pairs separated by ";". There is always a trailing ";".
-    cmTargetLinkLibraryType llt = GENERAL_LibraryType;
+    cmTarget::LinkLibraryType llt = cmTarget::GENERAL;
     std::string depline = deps;
     std::string::size_type start = 0;
     std::string::size_type end;
@@ -1175,22 +1174,22 @@ void cmTarget::GatherDependenciesForVS6( const cmMakefile& mf,
         {
         if (l == "debug")
           {
-          llt = DEBUG_LibraryType;
+          llt = cmTarget::DEBUG;
           }
         else if (l == "optimized")
           {
-          llt = OPTIMIZED_LibraryType;
+          llt = cmTarget::OPTIMIZED;
           }
         else if (l == "general")
           {
-          llt = GENERAL_LibraryType;
+          llt = cmTarget::GENERAL;
           }
         else
           {
           LibraryID lib2(l,llt);
           this->InsertDependencyForVS6( dep_map, lib, lib2);
           this->GatherDependenciesForVS6( mf, lib2, dep_map);
-          llt = GENERAL_LibraryType;
+          llt = cmTarget::GENERAL;
           }
         }
       start = end+1; // skip the ;

@@ -140,15 +140,17 @@ public:
   cmSourceFile* AddSourceCMP0049(const std::string& src);
   cmSourceFile* AddSource(const std::string& src);
 
+  enum LinkLibraryType {GENERAL, DEBUG, OPTIMIZED};
+
   //* how we identify a library, by name and type
-  typedef std::pair<std::string, cmTargetLinkLibraryType> LibraryID;
+  typedef std::pair<std::string, LinkLibraryType> LibraryID;
 
   typedef std::vector<LibraryID > LinkLibraryVectorType;
   const LinkLibraryVectorType &GetOriginalLinkLibraries() const
     {return this->OriginalLinkLibraries;}
 
   /** Compute the link type to use for the given configuration.  */
-  cmTargetLinkLibraryType ComputeLinkType(const std::string& config) const;
+  LinkLibraryType ComputeLinkType(const std::string& config) const;
 
   /**
    * Clear the dependency information recorded for this target, if any.
@@ -159,7 +161,7 @@ public:
   bool NameResolvesToFramework(const std::string& libname) const;
   void AddLinkLibrary(cmMakefile& mf,
                       const std::string& target, const std::string& lib,
-                      cmTargetLinkLibraryType llt);
+                      LinkLibraryType llt);
   enum TLLSignature {
     KeywordTLLSignature,
     PlainTLLSignature
@@ -295,7 +297,7 @@ public:
   void AppendBuildInterfaceIncludes();
 
   std::string GetDebugGeneratorExpressions(const std::string &value,
-                                  cmTargetLinkLibraryType llt) const;
+                                  cmTarget::LinkLibraryType llt) const;
 
   void AddSystemIncludeDirectories(const std::set<std::string> &incs);
   std::set<std::string> const & GetSystemIncludeDirectories() const

@@ -34,7 +34,7 @@ bool cmLinkLibrariesCommand
         return false;
         }
       this->Makefile->AddLinkLibrary(*i,
-                                 DEBUG_LibraryType);
+                                 cmTarget::DEBUG);
       }
     else if (*i == "optimized")
       {
@@ -46,7 +46,7 @@ bool cmLinkLibrariesCommand
         return false;
         }
       this->Makefile->AddLinkLibrary(*i,
-                                 OPTIMIZED_LibraryType);
+                                 cmTarget::OPTIMIZED);
       }
     else
       {
