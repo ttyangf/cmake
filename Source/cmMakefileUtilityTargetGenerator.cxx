@@ -42,8 +42,7 @@ void cmMakefileUtilityTargetGenerator::WriteRuleFiles()
   this->CreateRuleFile();
 
   *this->BuildFileStream
-    << "# Utility rule file for "
-    << this->GeneratorTarget->GetName() << ".\n\n";
+    << "# Utility rule file for " << this->Target->GetName() << ".\n\n";
 
   if(!this->NoRuleMessages)
     {
@@ -102,11 +101,11 @@ void cmMakefileUtilityTargetGenerator::WriteRuleFiles()
 
   // Write the rule.
   this->LocalGenerator->WriteMakeRule(*this->BuildFileStream, 0,
-                                      this->GeneratorTarget->GetName(),
+                                      this->Target->GetName(),
                                       depends, commands, true);
 
   // Write the main driver rule to build everything in this target.
-  this->WriteTargetDriverRule(this->GeneratorTarget->GetName(), false);
+  this->WriteTargetDriverRule(this->Target->GetName(), false);
 
   // Write clean target
   this->WriteTargetCleanRules();

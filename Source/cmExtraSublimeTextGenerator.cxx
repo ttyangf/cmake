@@ -255,9 +255,9 @@ void cmExtraSublimeTextGenerator::
             }
           std::vector<std::string>& flags = sourceFileFlagsIter->second;
           std::string flagsString =
-            this->ComputeFlagsForObject(*iter, lg, gtgt);
+            this->ComputeFlagsForObject(*iter, lg, target, gtgt);
           std::string definesString =
-            this->ComputeDefines(*iter, lg, gtgt);
+            this->ComputeDefines(*iter, lg, target, gtgt);
           flags.clear();
           cmsys::RegularExpression flagRegex;
           // Regular expression to extract compiler flags from a string
@@ -365,6 +365,7 @@ std::string cmExtraSublimeTextGenerator::BuildMakeCommand(
 std::string
 cmExtraSublimeTextGenerator::ComputeFlagsForObject(cmSourceFile* source,
                                                    cmLocalGenerator* lg,
+                                                   cmTarget *target,
                                                    cmGeneratorTarget* gtgt)
 {
   std::string flags;
@@ -389,7 +390,7 @@ cmExtraSublimeTextGenerator::ComputeFlagsForObject(cmSourceFile* source,
   //   }
 
   // Add shared-library flags if needed.
-  lg->AddCMP0018Flags(flags, gtgt->Target, language, config);
+  lg->AddCMP0018Flags(flags, target, language, config);
 
   // Add include directory flags.
   {
@@ -404,7 +405,7 @@ cmExtraSublimeTextGenerator::ComputeFlagsForObject(cmSourceFile* source,
   lg->AppendFlags(flags, makefile->GetDefineFlags());
 
   // Add target-specific flags.
-  lg->AddCompileOptions(flags, gtgt->Target, language, config);
+  lg->AddCompileOptions(flags, target, language, config);
 
   // Add source file specific flags.
   lg->AppendFlags(flags, source->GetProperty("COMPILE_FLAGS"));
@@ -418,8 +419,8 @@ cmExtraSublimeTextGenerator::ComputeFlagsForObject(cmSourceFile* source,
 // void cmMakefileTargetGenerator::WriteTargetLanguageFlags().
 std::string
 cmExtraSublimeTextGenerator::
-ComputeDefines(cmSourceFile *source, cmLocalGenerator* lg,
-               cmGeneratorTarget* target)
+ComputeDefines(cmSourceFile *source, cmLocalGenerator* lg, cmTarget *target,
+               cmGeneratorTarget*)
 
 {
   std::set<std::string> defines;
@@ -428,13 +429,13 @@ ComputeDefines(cmSourceFile *source, cmLocalGenerator* lg,
   const std::string& config = makefile->GetSafeDefinition("CMAKE_BUILD_TYPE");
 
   // Add the export symbol definition for shared library objects.
-  if(const char* exportMacro = target->Target->GetExportMacro())
+  if(const char* exportMacro = target->GetExportMacro())
     {
     lg->AppendDefines(defines, exportMacro);
     }
 
   // Add preprocessor definitions for this target and configuration.
-  lg->AddCompileDefinitions(defines, target->Target, config, language);
+  lg->AddCompileDefinitions(defines, target, config, language);
   lg->AppendDefines(defines, source->GetProperty("COMPILE_DEFINITIONS"));
   {
   std::string defPropName = "COMPILE_DEFINITIONS_";

@@ -64,6 +64,27 @@ const char* cmTarget::GetTargetTypeName(TargetType targetType)
 class cmTargetInternals
 {
 public:
+  cmTargetInternals()
+    : Backtrace()
+    {
+    this->UtilityItemsDone = false;
+    }
+  cmTargetInternals(cmTargetInternals const&)
+    : Backtrace()
+    {
+    this->UtilityItemsDone = false;
+    }
+  ~cmTargetInternals();
+
+  // The backtrace when the target was created.
+  cmListFileBacktrace Backtrace;
+
+  typedef std::map<std::string, cmTarget::ImportInfo> ImportInfoMapType;
+  ImportInfoMapType ImportInfoMap;
+
+  std::set<cmLinkItem> UtilityItems;
+  bool UtilityItemsDone;
+
   std::vector<std::string> IncludeDirectoriesEntries;
   std::vector<cmListFileBacktrace> IncludeDirectoriesBacktraces;
   std::vector<std::string> CompileOptionsEntries;
@@ -77,6 +98,11 @@ public:
   std::vector<std::string> LinkImplementationPropertyEntries;
   std::vector<cmListFileBacktrace> LinkImplementationPropertyBacktraces;
 };
+
+//----------------------------------------------------------------------------
+cmTargetInternals::~cmTargetInternals()
+{
+}
 
 //----------------------------------------------------------------------------
 cmTarget::cmTarget()
@@ -234,7 +260,7 @@ void cmTarget::SetMakefile(cmMakefile* mf)
     }
 
   // Save the backtrace of target construction.
-  this->Backtrace = this->Makefile->GetBacktrace();
+  this->Internal->Backtrace = this->Makefile->GetBacktrace();
 
   if (!this->IsImported())
     {
@@ -338,6 +364,22 @@ cmListFileBacktrace const* cmTarget::GetUtilityBacktrace(
 }
 
 //----------------------------------------------------------------------------
+std::set<cmLinkItem> const& cmTarget::GetUtilityItems() const
+{
+  if(!this->Internal->UtilityItemsDone)
+    {
+    this->Internal->UtilityItemsDone = true;
+    for(std::set<std::string>::const_iterator i = this->Utilities.begin();
+        i != this->Utilities.end(); ++i)
+      {
+      this->Internal->UtilityItems.insert(
+        cmLinkItem(*i, this->Makefile->FindTargetToUse(*i)));
+      }
+    }
+  return this->Internal->UtilityItems;
+}
+
+//----------------------------------------------------------------------------
 void cmTarget::FinishConfigure()
 {
   // Erase any cached link information that might have been comptued
@@ -357,7 +399,22 @@ void cmTarget::FinishConfigure()
 //----------------------------------------------------------------------------
 cmListFileBacktrace const& cmTarget::GetBacktrace() const
 {
-  return this->Backtrace;
+  return this->Internal->Backtrace;
+}
+
+//----------------------------------------------------------------------------
+std::string cmTarget::GetSupportDirectory() const
+{
+  std::string dir = this->Makefile->GetCurrentBinaryDirectory();
+  dir += cmake::GetCMakeFilesDirectory();
+  dir += "/";
+  dir += this->Name;
+#if defined(__VMS)
+  dir += "_dir";
+#else
+  dir += ".dir";
+#endif
+  return dir;
 }
 
 //----------------------------------------------------------------------------
@@ -1535,7 +1592,7 @@ void cmTarget::MaybeInvalidatePropertyCache(const std::string& prop)
   // Wipe out maps caching information affected by this property.
   if(this->IsImported() && cmHasLiteralPrefix(prop, "IMPORTED"))
     {
-    this->ImportInfoMap.clear();
+    this->Internal->ImportInfoMap.clear();
     }
 }
 
@@ -2163,6 +2220,26 @@ void cmTarget::ComputeVersionedName(std::string& vName,
 }
 
 //----------------------------------------------------------------------------
+bool cmTarget::HasImplibGNUtoMS() const
+{
+  return this->HasImportLibrary() && this->GetPropertyAsBool("GNUtoMS");
+}
+
+//----------------------------------------------------------------------------
+bool cmTarget::GetImplibGNUtoMS(std::string const& gnuName,
+                                std::string& out, const char* newExt) const
+{
+  if(this->HasImplibGNUtoMS() &&
+     gnuName.size() > 6 && gnuName.substr(gnuName.size()-6) == ".dll.a")
+    {
+    out = gnuName.substr(0, gnuName.size()-6);
+    out += newExt? newExt : ".lib";
+    return true;
+    }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 void cmTarget::SetPropertyDefault(const std::string& property,
                                   const char* default_value)
 {
@@ -2285,15 +2362,16 @@ cmTarget::GetImportInfo(const std::string& config) const
     {
     config_upper = "NOCONFIG";
     }
+  typedef cmTargetInternals::ImportInfoMapType ImportInfoMapType;
 
   ImportInfoMapType::const_iterator i =
-    this->ImportInfoMap.find(config_upper);
-  if(i == this->ImportInfoMap.end())
+    this->Internal->ImportInfoMap.find(config_upper);
+  if(i == this->Internal->ImportInfoMap.end())
     {
     ImportInfo info;
     this->ComputeImportInfo(config_upper, info);
     ImportInfoMapType::value_type entry(config_upper, info);
-    i = this->ImportInfoMap.insert(entry).first;
+    i = this->Internal->ImportInfoMap.insert(entry).first;
     }
 
   if(this->GetType() == INTERFACE_LIBRARY)
@@ -2610,6 +2688,37 @@ void cmTarget::ComputeImportInfo(std::string const& desired_config,
       sscanf(reps, "%u", &info.Multiplicity);
       }
     }
+}
+
+//----------------------------------------------------------------------------
+cmTarget const* cmTarget::FindTargetToLink(std::string const& name) const
+{
+  cmTarget const* tgt = this->Makefile->FindTargetToUse(name);
+
+  // Skip targets that will not really be linked.  This is probably a
+  // name conflict between an external library and an executable
+  // within the project.
+  if(tgt && tgt->GetType() == cmTarget::EXECUTABLE &&
+     !tgt->IsExecutableWithExports())
+    {
+    tgt = 0;
+    }
+
+  if(tgt && tgt->GetType() == cmTarget::OBJECT_LIBRARY)
+    {
+    std::ostringstream e;
+    e << "Target \"" << this->GetName() << "\" links to "
+      "OBJECT library \"" << tgt->GetName() << "\" but this is not "
+      "allowed.  "
+      "One may link only to STATIC or SHARED libraries, or to executables "
+      "with the ENABLE_EXPORTS property set.";
+    cmake* cm = this->Makefile->GetCMakeInstance();
+    cm->IssueMessage(cmake::FATAL_ERROR, e.str(), this->GetBacktrace());
+    tgt = 0;
+    }
+
+  // Return the target found, if any.
+  return tgt;
 }
 
 //----------------------------------------------------------------------------

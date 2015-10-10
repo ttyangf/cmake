@@ -513,9 +513,8 @@ void cmExportFileGenerator::PopulateInterfaceProperty(
 
 
 //----------------------------------------------------------------------------
-void getPropertyContents(cmGeneratorTarget const* tgt,
-                         const std::string& prop,
-                         std::set<std::string> &ifaceProperties)
+void getPropertyContents(cmTarget const* tgt, const std::string& prop,
+         std::set<std::string> &ifaceProperties)
 {
   const char *p = tgt->GetProperty(prop);
   if (!p)
@@ -586,11 +585,11 @@ void cmExportFileGenerator::PopulateCompatibleInterfaceProperties(
 
   std::set<std::string> ifaceProperties;
 
-  getPropertyContents(gtarget, "COMPATIBLE_INTERFACE_BOOL", ifaceProperties);
-  getPropertyContents(gtarget, "COMPATIBLE_INTERFACE_STRING", ifaceProperties);
-  getPropertyContents(gtarget, "COMPATIBLE_INTERFACE_NUMBER_MIN",
+  getPropertyContents(target, "COMPATIBLE_INTERFACE_BOOL", ifaceProperties);
+  getPropertyContents(target, "COMPATIBLE_INTERFACE_STRING", ifaceProperties);
+  getPropertyContents(target, "COMPATIBLE_INTERFACE_NUMBER_MIN",
                       ifaceProperties);
-  getPropertyContents(gtarget, "COMPATIBLE_INTERFACE_NUMBER_MAX",
+  getPropertyContents(target, "COMPATIBLE_INTERFACE_NUMBER_MAX",
                       ifaceProperties);
 
   if (target->GetType() != cmTarget::INTERFACE_LIBRARY)
