@@ -271,7 +271,8 @@ cmGeneratorTarget::cmGeneratorTarget(cmTarget* t, cmLocalGenerator* lg)
   DebugCompileFeaturesDone(false),
   DebugCompileDefinitionsDone(false),
   DebugSourcesDone(false),
-  LinkImplementationLanguageIsContextDependent(true)
+  LinkImplementationLanguageIsContextDependent(true),
+  UtilityItemsDone(false)
 {
   this->Makefile = this->Target->GetMakefile();
   this->LocalGenerator = lg;
@@ -509,7 +510,8 @@ cmGeneratorTarget::GetSourceDepends(cmSourceFile const* sf) const
   return 0;
 }
 
-static void handleSystemIncludesDep(cmMakefile *mf, cmTarget const* depTgt,
+static void handleSystemIncludesDep(cmMakefile *mf,
+                                  cmGeneratorTarget const* depTgt,
                                   const std::string& config,
                                   cmGeneratorTarget const* headTarget,
                                   cmGeneratorExpressionDAGChecker *dagChecker,
@@ -523,7 +525,7 @@ static void handleSystemIncludesDep(cmMakefile *mf, cmTarget const* depTgt,
     cmSystemTools::ExpandListArgument(ge.Parse(dirs)
                                       ->Evaluate(mf,
                                       config, false, headTarget->Target,
-                                      depTgt, dagChecker), result);
+                                      depTgt->Target, dagChecker), result);
     }
   if (!depTgt->IsImported() || excludeImported)
     {
@@ -537,7 +539,7 @@ static void handleSystemIncludesDep(cmMakefile *mf, cmTarget const* depTgt,
     cmSystemTools::ExpandListArgument(ge.Parse(dirs)
                                       ->Evaluate(mf,
                                       config, false, headTarget->Target,
-                                      depTgt, dagChecker), result);
+                                      depTgt->Target, dagChecker), result);
     }
 }
 
@@ -760,7 +762,24 @@ cmGeneratorTarget::GetExpectedXamlSources(std::set<std::string>& srcs,
 {
   XamlData data;
   IMPLEMENT_VISIT_IMPL(Xaml, COMMA cmGeneratorTarget::XamlData)
-  srcs = data.ExpectedXamlSources;
+      srcs = data.ExpectedXamlSources;
+}
+
+std::set<cmLinkItem> const& cmGeneratorTarget::GetUtilityItems() const
+{
+  if(!this->UtilityItemsDone)
+    {
+    this->UtilityItemsDone = true;
+    std::set<std::string> const& utilities = this->Target->GetUtilities();
+    for(std::set<std::string>::const_iterator i = utilities.begin();
+        i != utilities.end(); ++i)
+      {
+      cmGeneratorTarget* gt = this->GlobalGenerator
+          ->GetGeneratorTarget(this->Makefile->FindTargetToUse(*i));
+      this->UtilityItems.insert(cmLinkItem(*i, gt));
+      }
+    }
+  return this->UtilityItems;
 }
 
 //----------------------------------------------------------------------------
@@ -864,9 +883,9 @@ bool cmGeneratorTarget::IsSystemIncludeDirectory(const std::string& dir,
                                           &dagChecker), result);
       }
 
-    std::vector<cmTarget const*> const& deps =
+    std::vector<cmGeneratorTarget const*> const& deps =
       this->GetLinkImplementationClosure(config);
-    for(std::vector<cmTarget const*>::const_iterator
+    for(std::vector<cmGeneratorTarget const*>::const_iterator
           li = deps.begin(), le = deps.end(); li != le; ++li)
       {
       handleSystemIncludesDep(this->Makefile, *li, config, this,
@@ -1711,15 +1730,12 @@ public:
         }
       return;
       }
-    if(!this->Visited.insert(item.Target).second)
+    if(!this->Visited.insert(item.Target->Target).second)
       {
       return;
       }
-    cmGeneratorTarget* gtgt =
-        this->Target->GetLocalGenerator()->GetGlobalGenerator()
-            ->GetGeneratorTarget(item.Target);
     cmLinkInterface const* iface =
-      gtgt->GetLinkInterface(this->Config, this->HeadTarget);
+      item.Target->GetLinkInterface(this->Config, this->HeadTarget);
     if(!iface) { return; }
 
     for(std::vector<std::string>::const_iterator
@@ -2050,15 +2066,14 @@ void processILibs(const std::string& config,
                   cmGeneratorTarget const* headTarget,
                   cmLinkItem const& item,
                   cmGlobalGenerator* gg,
-                  std::vector<cmTarget const*>& tgts,
-                  std::set<cmTarget const*>& emitted)
+                  std::vector<cmGeneratorTarget const*>& tgts,
+                  std::set<cmGeneratorTarget const*>& emitted)
 {
   if (item.Target && emitted.insert(item.Target).second)
     {
     tgts.push_back(item.Target);
-    cmGeneratorTarget* gt = gg->GetGeneratorTarget(item.Target);
     if(cmLinkInterfaceLibraries const* iface =
-       gt->GetLinkInterfaceLibraries(config, headTarget, true))
+       item.Target->GetLinkInterfaceLibraries(config, headTarget, true))
       {
       for(std::vector<cmLinkItem>::const_iterator
             it = iface->Libraries.begin();
@@ -2071,7 +2086,7 @@ void processILibs(const std::string& config,
 }
 
 //----------------------------------------------------------------------------
-const std::vector<const cmTarget*>&
+const std::vector<const cmGeneratorTarget*>&
 cmGeneratorTarget::GetLinkImplementationClosure(
     const std::string& config) const
 {
@@ -2080,7 +2095,7 @@ cmGeneratorTarget::GetLinkImplementationClosure(
   if(!tgts.Done)
     {
     tgts.Done = true;
-    std::set<cmTarget const*> emitted;
+    std::set<cmGeneratorTarget const*> emitted;
 
     cmLinkImplementationLibraries const* impl
       = this->GetLinkImplementationLibraries(config);
@@ -3615,10 +3630,10 @@ cmGeneratorTarget::GetCompatibleInterfaces(std::string const& config) const
     compat.Done = true;
     compat.PropsBool.insert("POSITION_INDEPENDENT_CODE");
     compat.PropsString.insert("AUTOUIC_OPTIONS");
-    std::vector<cmTarget const*> const& deps =
+    std::vector<cmGeneratorTarget const*> const& deps =
       this->GetLinkImplementationClosure(config);
-    for(std::vector<cmTarget const*>::const_iterator li = deps.begin();
-        li != deps.end(); ++li)
+    for(std::vector<cmGeneratorTarget const*>::const_iterator li =
+        deps.begin(); li != deps.end(); ++li)
       {
 #define CM_READ_COMPATIBLE_INTERFACE(X, x) \
       if(const char* prop = (*li)->GetProperty("COMPATIBLE_INTERFACE_" #X)) \
@@ -3735,7 +3750,7 @@ const char * getLinkInterfaceDependentProperty(cmGeneratorTarget const* tgt,
 //----------------------------------------------------------------------------
 template<typename PropertyType>
 void checkPropertyConsistency(cmGeneratorTarget const* depender,
-                              cmTarget const* dependee,
+                              cmGeneratorTarget const* dependee,
                               const std::string& propName,
                               std::set<std::string> &emitted,
                               const std::string& config,
@@ -3751,7 +3766,7 @@ void checkPropertyConsistency(cmGeneratorTarget const* depender,
   std::vector<std::string> props;
   cmSystemTools::ExpandListArgument(prop, props);
   std::string pdir =
-    dependee->GetMakefile()->GetRequiredDefinition("CMAKE_ROOT");
+    dependee->Target->GetMakefile()->GetRequiredDefinition("CMAKE_ROOT");
   pdir += "/Help/prop_tgt/";
 
   for(std::vector<std::string>::iterator pi = props.begin();
@@ -3964,18 +3979,20 @@ std::string compatibilityAgree(CompatibleType t, bool dominant)
 
 //----------------------------------------------------------------------------
 template<typename PropertyType>
-PropertyType getTypedProperty(cmTarget const* tgt, const std::string& prop);
+PropertyType getTypedProperty(cmGeneratorTarget const* tgt,
+                              const std::string& prop);
 
 //----------------------------------------------------------------------------
 template<>
-bool getTypedProperty<bool>(cmTarget const* tgt, const std::string& prop)
+bool getTypedProperty<bool>(cmGeneratorTarget const* tgt,
+                            const std::string& prop)
 {
   return tgt->GetPropertyAsBool(prop);
 }
 
 //----------------------------------------------------------------------------
 template<>
-const char *getTypedProperty<const char *>(cmTarget const* tgt,
+const char *getTypedProperty<const char *>(cmGeneratorTarget const* tgt,
                                            const std::string& prop)
 {
   return tgt->GetProperty(prop);
@@ -4105,7 +4122,7 @@ PropertyType checkInterfacePropertyCompatibility(cmGeneratorTarget const* tgt,
                                           CompatibleType t,
                                           PropertyType *)
 {
-  PropertyType propContent = getTypedProperty<PropertyType>(tgt->Target, p);
+  PropertyType propContent = getTypedProperty<PropertyType>(tgt, p);
   const bool explicitlySet = tgt->Target->GetProperties()
                                   .find(p)
                                   != tgt->Target->GetProperties().end();
@@ -4114,7 +4131,7 @@ PropertyType checkInterfacePropertyCompatibility(cmGeneratorTarget const* tgt,
   assert((impliedByUse ^ explicitlySet)
       || (!impliedByUse && !explicitlySet));
 
-  std::vector<cmTarget const*> const& deps =
+  std::vector<cmGeneratorTarget const*> const& deps =
     tgt->GetLinkImplementationClosure(config);
 
   if(deps.empty())
@@ -4141,7 +4158,7 @@ PropertyType checkInterfacePropertyCompatibility(cmGeneratorTarget const* tgt,
     }
 
   std::string interfaceProperty = "INTERFACE_" + p;
-  for(std::vector<cmTarget const*>::const_iterator li =
+  for(std::vector<cmGeneratorTarget const*>::const_iterator li =
       deps.begin();
       li != deps.end(); ++li)
     {
@@ -4151,11 +4168,11 @@ PropertyType checkInterfacePropertyCompatibility(cmGeneratorTarget const* tgt,
     // target itself has a POSITION_INDEPENDENT_CODE which disagrees
     // with a dependency.
 
-    cmTarget const* theTarget = *li;
+    cmGeneratorTarget const* theTarget = *li;
 
-    const bool ifaceIsSet = theTarget->GetProperties()
+    const bool ifaceIsSet = theTarget->Target->GetProperties()
                             .find(interfaceProperty)
-                            != theTarget->GetProperties().end();
+                            != theTarget->Target->GetProperties().end();
     PropertyType ifacePropContent =
                     getTypedProperty<PropertyType>(theTarget,
                               interfaceProperty);
@@ -4410,7 +4427,9 @@ void cmGeneratorTarget::LookupLinkItems(std::vector<std::string> const& names,
       {
       continue;
       }
-    items.push_back(cmLinkItem(name, this->Target->FindTargetToLink(name)));
+    cmGeneratorTarget* gt = this->GlobalGenerator
+        ->GetGeneratorTarget(this->Target->FindTargetToLink(name));
+    items.push_back(cmLinkItem(name, gt));
     }
 }
 
@@ -4473,7 +4492,7 @@ cmGeneratorTarget::GetLinkInterface(const std::string& config,
     return &hm.begin()->second;
     }
 
-  cmOptionalLinkInterface& iface = hm[head->Target];
+  cmOptionalLinkInterface& iface = hm[head];
   if(!iface.LibrariesDone)
     {
     iface.LibrariesDone = true;
@@ -4625,7 +4644,7 @@ cmGeneratorTarget::GetLinkInterfaceLibraries(const std::string& config,
     return &hm.begin()->second;
     }
 
-  cmOptionalLinkInterface& iface = hm[head->Target];
+  cmOptionalLinkInterface& iface = hm[head];
   if(!iface.LibrariesDone)
     {
     iface.LibrariesDone = true;
@@ -5062,7 +5081,7 @@ cmGeneratorTarget::GetImportLinkInterface(const std::string& config,
     return &hm.begin()->second;
     }
 
-  cmOptionalLinkInterface& iface = hm[headTarget->Target];
+  cmOptionalLinkInterface& iface = hm[headTarget];
   if(!iface.AllDone)
     {
     iface.AllDone = true;
@@ -5380,9 +5399,10 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
         }
 
       // The entry is meant for this configuration.
+      cmTarget const* tgt = this->Target->FindTargetToLink(name);
+      cmGeneratorTarget* gt = this->GlobalGenerator->GetGeneratorTarget(tgt);
       impl.Libraries.push_back(
-        cmLinkImplItem(name, this->Target->FindTargetToLink(name),
-                       *btIt, evaluated != *le));
+        cmLinkImplItem(name, gt, *btIt, evaluated != *le));
       }
 
     std::set<std::string> const& seenProps = cge->GetSeenTargetProperties();
@@ -5411,9 +5431,10 @@ void cmGeneratorTarget::ComputeLinkImplementationLibraries(
         {
         continue;
         }
+      cmGeneratorTarget* gt = this->GlobalGenerator
+          ->GetGeneratorTarget(this->Target->FindTargetToLink(name));
       // Support OLD behavior for CMP0003.
-      impl.WrongConfigLibraries.push_back(
-        cmLinkItem(name, this->Target->FindTargetToLink(name)));
+      impl.WrongConfigLibraries.push_back(cmLinkItem(name, gt));
       }
     }
 }
