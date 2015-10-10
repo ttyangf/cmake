@@ -779,9 +779,10 @@ void cmTarget::AddLinkLibrary(cmMakefile& mf,
   {
   const bool isNonImportedTarget = tgt && !tgt->IsImported();
 
-  const std::string libName = (isNonImportedTarget && llt != GENERAL_LibraryType)
-                                                        ? targetNameGenex(lib)
-                                                        : lib;
+  const std::string libName =
+      (isNonImportedTarget && llt != GENERAL_LibraryType)
+      ? targetNameGenex(lib)
+      : lib;
   this->AppendProperty("LINK_LIBRARIES",
                        this->GetDebugGeneratorExpressions(libName,
                                                           llt).c_str());
