@@ -474,7 +474,7 @@ bool cmake::FindPackage(const std::vector<std::string>& args)
             ++libIt)
       {
       mf->AddLinkLibraryForTarget(targetName, *libIt,
-                                  GENERAL_LibraryType);
+                                  cmTarget::GENERAL);
       }
 
 
