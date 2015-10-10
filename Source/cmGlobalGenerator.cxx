@@ -2893,14 +2893,13 @@ void cmGlobalGenerator::WriteSummary()
       {
       continue;
       }
-    cmGeneratorTarget* gt = this->GetGeneratorTarget(ti->second);
-    this->WriteSummary(gt);
-    fout << gt->GetSupportDirectory() << "\n";
+    this->WriteSummary(ti->second);
+    fout << ti->second->GetSupportDirectory() << "\n";
     }
 }
 
 //----------------------------------------------------------------------------
-void cmGlobalGenerator::WriteSummary(cmGeneratorTarget* target)
+void cmGlobalGenerator::WriteSummary(cmTarget* target)
 {
   // Place the labels file in a per-target support directory.
   std::string dir = target->GetSupportDirectory();
@@ -2943,15 +2942,17 @@ void cmGlobalGenerator::WriteSummary(cmGeneratorTarget* target)
     fout << "# Source files and their labels\n";
     std::vector<cmSourceFile*> sources;
     std::vector<std::string> configs;
-    target->Target->GetMakefile()->GetConfigurations(configs);
+    target->GetMakefile()->GetConfigurations(configs);
     if (configs.empty())
       {
       configs.push_back("");
       }
+    cmGeneratorTarget* gt =
+        this->GetGeneratorTarget(target);
     for(std::vector<std::string>::const_iterator ci = configs.begin();
         ci != configs.end(); ++ci)
       {
-      target->GetSourceFiles(sources, *ci);
+      gt->GetSourceFiles(sources, *ci);
       }
     std::vector<cmSourceFile*>::const_iterator sourcesEnd
         = cmRemoveDuplicates(sources);

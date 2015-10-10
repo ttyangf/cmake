@@ -19,6 +19,7 @@
 class cmake;
 class cmGlobalGenerator;
 class cmMakefile;
+class cmTarget;
 class cmGeneratorTarget;
 class cmOrderDirectories;
 
@@ -38,11 +39,11 @@ public:
     Item(): Value(), IsPath(true), Target(0) {}
     Item(Item const& item):
       Value(item.Value), IsPath(item.IsPath), Target(item.Target) {}
-    Item(std::string const& v, bool p, cmGeneratorTarget const* target = 0):
+    Item(std::string const& v, bool p, cmTarget const* target = 0):
       Value(v), IsPath(p), Target(target) {}
     std::string Value;
     bool IsPath;
-    cmGeneratorTarget const* Target;
+    cmTarget const* Target;
   };
   typedef std::vector<Item> ItemVector;
   ItemVector const& GetItems();
@@ -56,7 +57,7 @@ public:
   void GetRPath(std::vector<std::string>& runtimeDirs, bool for_install);
   std::string GetRPathString(bool for_install);
   std::string GetChrpathString();
-  std::set<cmGeneratorTarget const*> const& GetSharedLibrariesLinked();
+  std::set<cmTarget const*> const& GetSharedLibrariesLinked();
 
   std::string const& GetRPathLinkFlag() const { return this->RPathLinkFlag; }
   std::string GetRPathLinkString();
@@ -70,7 +71,7 @@ private:
   std::vector<std::string> Depends;
   std::vector<std::string> FrameworkPaths;
   std::vector<std::string> RuntimeSearchPath;
-  std::set<cmGeneratorTarget const*> SharedLibrariesLinked;
+  std::set<cmTarget const*> SharedLibrariesLinked;
 
   // Context information.
   cmGeneratorTarget const* Target;
@@ -128,7 +129,7 @@ private:
   std::string NoCaseExpression(const char* str);
 
   // Handling of link items.
-  void AddTargetItem(std::string const& item, const cmGeneratorTarget* target);
+  void AddTargetItem(std::string const& item, cmTarget const* target);
   void AddFullItem(std::string const& item);
   bool CheckImplicitDirItem(std::string const& item);
   void AddUserItem(std::string const& item, bool pathNotKnown);
@@ -182,7 +183,7 @@ private:
   bool CMP0060Warn;
 
   void AddLibraryRuntimeInfo(std::string const& fullPath,
-                             const cmGeneratorTarget* target);
+                             cmTarget const* target);
   void AddLibraryRuntimeInfo(std::string const& fullPath);
 
 };

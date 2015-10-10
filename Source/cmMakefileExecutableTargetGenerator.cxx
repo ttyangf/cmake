@@ -168,7 +168,7 @@ void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink)
   if(linkLanguage.empty())
     {
     cmSystemTools::Error("Cannot determine link language for target \"",
-                         this->GeneratorTarget->GetName().c_str(), "\".");
+                         this->Target->GetName().c_str(), "\".");
     return;
     }
 
@@ -197,7 +197,7 @@ void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink)
                            this->ConfigName);
 
 
-  if(this->GeneratorTarget->GetPropertyAsBool("WIN32_EXECUTABLE"))
+  if(this->Target->GetPropertyAsBool("WIN32_EXECUTABLE"))
     {
     this->LocalGenerator->AppendFlags
       (linkFlags, this->Makefile->GetDefinition("CMAKE_CREATE_WIN32_EXE"));
@@ -226,11 +226,11 @@ void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink)
 
   // Add target-specific linker flags.
   this->LocalGenerator->AppendFlags
-    (linkFlags, this->GeneratorTarget->GetProperty("LINK_FLAGS"));
+    (linkFlags, this->Target->GetProperty("LINK_FLAGS"));
   std::string linkFlagsConfig = "LINK_FLAGS_";
   linkFlagsConfig += cmSystemTools::UpperCase(this->ConfigName);
   this->LocalGenerator->AppendFlags
-    (linkFlags, this->GeneratorTarget->GetProperty(linkFlagsConfig));
+    (linkFlags, this->Target->GetProperty(linkFlagsConfig));
 
   this->AddModuleDefinitionFlag(linkFlags);
 
@@ -259,7 +259,7 @@ void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink)
                                           cmLocalGenerator::START_OUTPUT,
                                           cmLocalGenerator::UNCHANGED));
     std::string implib;
-    if(this->GeneratorTarget->GetImplibGNUtoMS(targetFullPathImport, implib))
+    if(this->Target->GetImplibGNUtoMS(targetFullPathImport, implib))
       {
       exeCleanFiles.push_back(this->Convert(implib,
                                             cmLocalGenerator::START_OUTPUT,
@@ -361,7 +361,7 @@ void cmMakefileExecutableTargetGenerator::WriteExecutableRule(bool relink)
   vars.CMTarget = this->Target;
   vars.Language = linkLanguage.c_str();
   vars.Objects = buildObjs.c_str();
-  std::string objectDir = this->GeneratorTarget->GetSupportDirectory();
+  std::string objectDir = this->Target->GetSupportDirectory();
   objectDir = this->Convert(objectDir,
                             cmLocalGenerator::START_OUTPUT,
                             cmLocalGenerator::SHELL);
