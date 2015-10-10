@@ -320,7 +320,8 @@ int cmComputeLinkDepends::AddLinkEntry(cmLinkItem const& item)
   int index = lei->second;
   LinkEntry& entry = this->EntryList[index];
   entry.Item = item;
-  entry.Target = item.Target;
+  entry.Target =
+      item.Target ? this->GlobalGenerator->GetGeneratorTarget(item.Target) : 0;
   entry.IsFlag = (!entry.Target && item[0] == '-' && item[1] != 'l' &&
                   item.substr(0, 10) != "-framework");
 
@@ -442,7 +443,9 @@ void cmComputeLinkDepends::HandleSharedDependency(SharedDepEntry const& dep)
     // Initialize the item entry.
     LinkEntry& entry = this->EntryList[lei->second];
     entry.Item = dep.Item;
-    entry.Target = dep.Item.Target;
+    entry.Target =
+        dep.Item.Target ?
+          this->GlobalGenerator->GetGeneratorTarget(dep.Item.Target) : 0;
 
     // This item was added specifically because it is a dependent
     // shared library.  It may get special treatment
@@ -526,17 +529,15 @@ void cmComputeLinkDepends::AddVarLinkEntries(int depender_index,
           }
         }
 
-      const cmGeneratorTarget* gtgt =
-          this->FindTargetToLink(depender_index, *di);
       // If the library is meant for this link type then use it.
       if(llt == cmTarget::GENERAL || llt == this->LinkType)
         {
-        cmLinkItem item(*di, gtgt);
+        cmLinkItem item(*di, this->FindTargetToLink(depender_index, *di));
         actual_libs.push_back(item);
         }
       else if(this->OldLinkDirMode)
         {
-        cmLinkItem item(*di, gtgt);
+        cmLinkItem item(*di, this->FindTargetToLink(depender_index, *di));
         this->CheckWrongConfigItem(item);
         }
 
@@ -633,9 +634,8 @@ cmComputeLinkDepends::AddLinkEntries(
 }
 
 //----------------------------------------------------------------------------
-cmGeneratorTarget const*
-cmComputeLinkDepends::FindTargetToLink(int depender_index,
-                                       const std::string& name)
+cmTarget const* cmComputeLinkDepends::FindTargetToLink(int depender_index,
+                                                 const std::string& name)
 {
   // Look for a target in the scope of the depender.
   cmGeneratorTarget const* from = this->Target;
@@ -647,9 +647,7 @@ cmComputeLinkDepends::FindTargetToLink(int depender_index,
       from = depender;
       }
     }
-
-  return this->GlobalGenerator->GetGeneratorTarget(
-        from->Target->FindTargetToLink(name));
+  return from->Target->FindTargetToLink(name);
 }
 
 //----------------------------------------------------------------------------
@@ -984,6 +982,7 @@ void cmComputeLinkDepends::CheckWrongConfigItem(cmLinkItem const& item)
   // directories.
   if(item.Target && !item.Target->IsImported())
     {
-    this->OldWrongConfigItems.insert(item.Target);
+    this->OldWrongConfigItems.insert(
+            this->GlobalGenerator->GetGeneratorTarget(item.Target));
     }
 }

@@ -557,8 +557,7 @@ cmMakefileTargetGenerator
       this->GeneratorTarget->GetCompilePDBPath(this->ConfigName);
     if(targetFullPathCompilePDB.empty())
       {
-      targetFullPathCompilePDB =
-          this->GeneratorTarget->GetSupportDirectory() + "/";
+      targetFullPathCompilePDB = this->Target->GetSupportDirectory() + "/";
       }
     }
 
@@ -595,7 +594,7 @@ cmMakefileTargetGenerator
                   cmLocalGenerator::NONE,
                   cmLocalGenerator::SHELL);
   vars.Object = shellObj.c_str();
-  std::string objectDir = this->GeneratorTarget->GetSupportDirectory();
+  std::string objectDir = this->Target->GetSupportDirectory();
   objectDir = this->Convert(objectDir,
                             cmLocalGenerator::START_OUTPUT,
                             cmLocalGenerator::SHELL);
@@ -1517,7 +1516,7 @@ std::string cmMakefileTargetGenerator::GetLinkRule(
                                               const std::string& linkRuleVar)
 {
   std::string linkRule = this->Makefile->GetRequiredDefinition(linkRuleVar);
-  if(this->GeneratorTarget->HasImplibGNUtoMS())
+  if(this->Target->HasImplibGNUtoMS())
     {
     std::string ruleVar = "CMAKE_";
     ruleVar += this->GeneratorTarget->GetLinkerLanguage(this->ConfigName);

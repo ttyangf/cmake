@@ -383,7 +383,7 @@ std::vector<std::string>
 cmCommonTargetGenerator::GetLinkedTargetDirectories() const
 {
   std::vector<std::string> dirs;
-  std::set<cmGeneratorTarget const*> emitted;
+  std::set<cmTarget const*> emitted;
   if (cmComputeLinkInformation* cli =
       this->GeneratorTarget->GetLinkInformation(this->ConfigName))
     {
@@ -397,7 +397,7 @@ cmCommonTargetGenerator::GetLinkedTargetDirectories() const
                 // Target->GetLinkInformation already processed their
                 // link interface and they don't have any output themselves.
                 && linkee->GetType() != cmTarget::INTERFACE_LIBRARY
-                && emitted.insert(linkee).second)
+                && emitted.insert(linkee->Target).second)
         {
         cmLocalGenerator* lg = linkee->GetLocalGenerator();
         cmMakefile* mf = linkee->Target->GetMakefile();

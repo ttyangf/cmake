@@ -458,7 +458,7 @@ private:
   void WriteRuleHashes(std::string const& pfile);
 
   void WriteSummary();
-  void WriteSummary(cmGeneratorTarget* target);
+  void WriteSummary(cmTarget* target);
   void FinalizeTargetCompileInfo();
 
   virtual void ForceLinkerLanguages();

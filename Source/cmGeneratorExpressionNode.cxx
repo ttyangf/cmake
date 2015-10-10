@@ -831,8 +831,8 @@ template <typename T>
 std::string
 getLinkedTargetsContent(
   std::vector<T> const &libraries,
-  cmGeneratorTarget const* target,
-  cmGeneratorTarget const* headTarget,
+  cmTarget const* target,
+  cmTarget const* headTarget,
   cmGeneratorExpressionContext *context,
   cmGeneratorExpressionDAGChecker *dagChecker,
   const std::string &interfacePropertyName)
@@ -858,10 +858,8 @@ getLinkedTargetsContent(
     {
     linkedTargetsContent =
         cmGeneratorExpressionNode::EvaluateDependentExpression(depString,
-                                        target->Target->GetMakefile(),
-                                        context,
-                                        headTarget->Target,
-                                        target->Target, dagChecker);
+                                        target->GetMakefile(), context,
+                                        headTarget, target, dagChecker);
     }
   linkedTargetsContent =
     cmGeneratorExpression::StripEmptyListElements(linkedTargetsContent);
@@ -1118,8 +1116,8 @@ static const struct TargetPropertyNode : public cmGeneratorExpressionNode
          gtgt->GetLinkInterfaceLibraries(context->Config, gHeadTarget, true))
         {
         linkedTargetsContent =
-          getLinkedTargetsContent(iface->Libraries, gtgt,
-                                  gHeadTarget,
+          getLinkedTargetsContent(iface->Libraries, target,
+                                  headTarget,
                                   context, &dagChecker,
                                   interfacePropertyName);
         }
@@ -1130,8 +1128,8 @@ static const struct TargetPropertyNode : public cmGeneratorExpressionNode
          gtgt->GetLinkImplementationLibraries(context->Config))
         {
         linkedTargetsContent =
-          getLinkedTargetsContent(impl->Libraries, gtgt,
-                                  gtgt,
+          getLinkedTargetsContent(impl->Libraries, target,
+                                  target,
                                   context, &dagChecker,
                                   interfacePropertyName);
         }
@@ -1660,7 +1658,7 @@ struct TargetFilesystemArtifactResultCreator<ArtifactLinkerTag>
       return std::string();
       }
     return target->GetFullPath(context->Config,
-                               target->HasImportLibrary());
+                               target->Target->HasImportLibrary());
   }
 };
 
