@@ -242,14 +242,6 @@ public:
   void
   GetTargetVersion(bool soversion, int& major, int& minor, int& patch) const;
 
-  /** Does this target have a GNU implib to convert to MS format?  */
-  bool HasImplibGNUtoMS() const;
-
-  /** Convert the given GNU import library name (.dll.a) to a name with a new
-      extension (.lib or ${CMAKE_IMPORT_LIBRARY_SUFFIX}).  */
-  bool GetImplibGNUtoMS(std::string const& gnuName, std::string& out,
-                        const char* newExt = 0) const;
-
   // Get the properties
   cmPropertyMap &GetProperties() const { return this->Properties; }
 
@@ -272,9 +264,6 @@ public:
   /** Return whether or not the target is for a DLL platform.  */
   bool IsDLLPlatform() const { return this->DLLPlatform; }
 
-  /** Return whether or not the target has a DLL import library.  */
-  bool HasImportLibrary() const;
-
   /** Return whether this target is a shared library Framework on
       Apple.  */
   bool IsFrameworkOnApple() const;
@@ -294,9 +283,6 @@ public:
 
   /** Get a backtrace from the creation of the target.  */
   cmListFileBacktrace const& GetBacktrace() const;
-
-  /** Get a build-tree directory in which to place target support files.  */
-  std::string GetSupportDirectory() const;
 
   /** @return whether this target have a well defined output file name. */
   bool HaveWellDefinedOutputFiles() const;
@@ -472,6 +458,9 @@ private:
   std::string ProcessSourceItemCMP0049(const std::string& s);
 
   void MaybeInvalidatePropertyCache(const std::string& prop);
+
+  /** Return whether or not the target has a DLL import library.  */
+  bool HasImportLibrary() const;
 
   // Internal representation details.
   friend class cmTargetInternals;

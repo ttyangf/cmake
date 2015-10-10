@@ -5450,3 +5450,47 @@ cmGeneratorTarget::GetPDBDirectory(const std::string& config) const
     }
   return "";
 }
+
+//----------------------------------------------------------------------------
+bool cmGeneratorTarget::HasImplibGNUtoMS() const
+{
+  return this->HasImportLibrary()
+      && this->GetPropertyAsBool("GNUtoMS");
+}
+
+//----------------------------------------------------------------------------
+bool cmGeneratorTarget::GetImplibGNUtoMS(std::string const& gnuName,
+                                std::string& out, const char* newExt) const
+{
+  if(this->HasImplibGNUtoMS() &&
+     gnuName.size() > 6 && gnuName.substr(gnuName.size()-6) == ".dll.a")
+    {
+    out = gnuName.substr(0, gnuName.size()-6);
+    out += newExt? newExt : ".lib";
+    return true;
+    }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool cmGeneratorTarget::HasImportLibrary() const
+{
+  return (this->Target->IsDLLPlatform() &&
+          (this->GetType() == cmTarget::SHARED_LIBRARY ||
+           this->Target->IsExecutableWithExports()));
+}
+
+//----------------------------------------------------------------------------
+std::string cmGeneratorTarget::GetSupportDirectory() const
+{
+  std::string dir = this->Makefile->GetCurrentBinaryDirectory();
+  dir += cmake::GetCMakeFilesDirectory();
+  dir += "/";
+  dir += this->GetName();
+#if defined(__VMS)
+  dir += "_dir";
+#else
+  dir += ".dir";
+#endif
+  return dir;
+}
