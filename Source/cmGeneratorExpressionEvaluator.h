@@ -18,8 +18,6 @@
 #include "cmListFileCache.h"
 #include "cmGeneratorExpressionContext.h"
 
-class cmTarget;
-
 struct cmGeneratorExpressionDAGChecker;
 struct cmGeneratorExpressionNode;
 
