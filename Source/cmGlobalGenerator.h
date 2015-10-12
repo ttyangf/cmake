@@ -364,6 +364,8 @@ public:
 
   bool GetConfigureDoneCMP0026() const { return this->ConfigureDoneCMP0026; }
 
+  void ComputeBuildFileGenerators();
+
   std::string MakeSilentFlag;
 protected:
   typedef std::vector<cmLocalGenerator*> GeneratorVector;

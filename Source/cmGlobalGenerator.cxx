@@ -1226,6 +1226,20 @@ bool cmGlobalGenerator::CheckALLOW_DUPLICATE_CUSTOM_TARGETS() const
   return false;
 }
 
+void cmGlobalGenerator::ComputeBuildFileGenerators()
+{
+  for (unsigned int i = 0; i < this->LocalGenerators.size(); ++i)
+    {
+    std::vector<cmExportBuildFileGenerator*> gens =
+        this->Makefiles[i]->GetExportBuildFileGenerators();
+    for (std::vector<cmExportBuildFileGenerator*>::const_iterator it =
+         gens.begin(); it != gens.end(); ++it)
+      {
+      (*it)->Compute(this->LocalGenerators[i]);
+      }
+    }
+}
+
 bool cmGlobalGenerator::Compute()
 {
   // Some generators track files replaced during the Generate.
@@ -1254,6 +1268,8 @@ bool cmGlobalGenerator::Compute()
   std::vector<cmGeneratorTarget const*> autogenTargets =
       this->CreateQtAutoGeneratorsTargets();
 #endif
+
+  this->ComputeBuildFileGenerators();
 
   unsigned int i;
 
@@ -1552,7 +1568,7 @@ void cmGlobalGenerator::CreateGeneratorTargets(TargetTypes targetTypes,
     this->GeneratorTargets[*j] = gt;
     generatorTargets[*j] = gt;
     }
-  mf->SetGeneratorTargets(generatorTargets);
+  lg->SetGeneratorTargets(generatorTargets);
 }
 
 //----------------------------------------------------------------------------
