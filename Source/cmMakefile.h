@@ -779,6 +779,7 @@ public:
 
   std::vector<cmExportBuildFileGenerator*>
   GetExportBuildFileGenerators() const;
+  void RemoveExportBuildFileGeneratorCMP0024(cmExportBuildFileGenerator* gen);
   void AddExportBuildFileGenerator(cmExportBuildFileGenerator* gen);
 
 protected:
