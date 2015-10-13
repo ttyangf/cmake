@@ -1366,11 +1366,6 @@ std::string cmState::Snapshot::GetProjectName() const
   return this->Position->BuildSystemDirectory->ProjectName;
 }
 
-void cmState::Snapshot::InitializeFromParent_ForSubdirsCommand()
-{
-  this->InitializeFromParent();
-}
-
 cmState::Directory::Directory(
     cmLinkedTree<BuildsystemDirectoryStateType>::iterator iter,
     const cmState::Snapshot& snapshot)
