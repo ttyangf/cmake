@@ -362,7 +362,8 @@ public:
   cmFileLockPool& GetFileLockPool() { return FileLockPool; }
 #endif
 
-  bool GetConfigureDoneCMP0026() const { return this->ConfigureDoneCMP0026AndCMP0024; }
+  bool GetConfigureDoneCMP0026() const
+  { return this->ConfigureDoneCMP0026AndCMP0024; }
 
   void ComputeBuildFileGenerators();
 
