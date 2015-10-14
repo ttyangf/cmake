@@ -2692,7 +2692,7 @@ void cmVisualStudio10TargetGenerator::AddLibraries(
       libVec.push_back(path);
       }
     else if (!l->Target
-        || l->GeneratorTarget->GetType() != cmState::INTERFACE_LIBRARY)
+        || l->Target->GetType() != cmState::INTERFACE_LIBRARY)
       {
       libVec.push_back(l->Value);
       }
