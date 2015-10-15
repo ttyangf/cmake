@@ -84,9 +84,10 @@ std::string cmExportTryCompileFileGenerator::FindTargets(
                                      false, &gDummyHead,
                                      gtgt, &dagChecker);
 
-  const std::set<cmGeneratorTarget const*> &allTargets = cge->GetAllTargetsSeen();
-  for(std::set<cmGeneratorTarget const*>::const_iterator li = allTargets.begin();
-      li != allTargets.end(); ++li)
+  const std::set<cmGeneratorTarget const*> &allTargets =
+      cge->GetAllTargetsSeen();
+  for(std::set<cmGeneratorTarget const*>::const_iterator li =
+      allTargets.begin(); li != allTargets.end(); ++li)
     {
     if(emitted.insert((*li)->Target).second)
       {
