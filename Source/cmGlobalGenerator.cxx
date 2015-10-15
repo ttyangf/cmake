@@ -3029,7 +3029,7 @@ std::string cmGlobalGenerator::EscapeJSON(const std::string& s) {
 
 //----------------------------------------------------------------------------
 void cmGlobalGenerator::SetFilenameTargetDepends(cmSourceFile* sf,
-                                              std::set<cmGeneratorTarget const*> tgts)
+                                     std::set<cmGeneratorTarget const*> tgts)
 {
   this->FilenameTargetDepends[sf] = tgts;
 }
