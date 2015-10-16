@@ -77,7 +77,7 @@ void cmNinjaNormalTargetGenerator::Generate()
   if (this->TargetLinkLanguage.empty()) {
     cmSystemTools::Error("CMake can not determine linker language for "
                          "target: ",
-                         this->GetTarget()->GetName().c_str());
+                         this->GetGeneratorTarget()->GetName().c_str());
     return;
   }
 
@@ -158,7 +158,8 @@ cmNinjaNormalTargetGenerator
     + "_"
     + cmState::GetTargetTypeName(this->GetGeneratorTarget()->GetType())
     + "_LINKER__"
-    + cmGlobalNinjaGenerator::EncodeRuleName(this->GetTarget()->GetName())
+    + cmGlobalNinjaGenerator::EncodeRuleName(
+        this->GetGeneratorTarget()->GetName())
     ;
 }
 
@@ -177,7 +178,7 @@ cmNinjaNormalTargetGenerator
   if (!this->GetGlobalGenerator()->HasRule(ruleName)) {
     cmLocalGenerator::RuleVariables vars;
     vars.RuleLauncher = "RULE_LAUNCH_LINK";
-    vars.CMTarget = this->GetTarget();
+    vars.CMTarget = this->GetGeneratorTarget();
     vars.Language = this->TargetLinkLanguage.c_str();
 
     std::string responseFlag;
@@ -227,7 +228,7 @@ cmNinjaNormalTargetGenerator
     std::ostringstream minorStream;
     int major;
     int minor;
-    this->GetTarget()->GetTargetVersion(major, minor);
+    this->GetGeneratorTarget()->GetTargetVersion(major, minor);
     majorStream << major;
     minorStream << minor;
     targetVersionMajor = majorStream.str();
