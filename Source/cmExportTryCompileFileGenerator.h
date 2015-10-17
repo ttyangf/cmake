@@ -38,8 +38,8 @@ protected:
   virtual void HandleMissingTarget(std::string&,
                                    std::vector<std::string>&,
                                    cmMakefile*,
-                                   cmTarget*,
-                                   cmTarget*) {}
+                                   cmGeneratorTarget*,
+                                   cmGeneratorTarget*) {}
 
   void PopulateProperties(cmGeneratorTarget const* target,
                           ImportPropertyMap& properties,
