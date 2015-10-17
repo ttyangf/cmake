@@ -787,14 +787,16 @@ cmGlobalXCodeGenerator::CreateXCodeSourceFile(cmLocalGenerator* lg,
 
   // Is this a resource file in this target? Add it to the resources group...
   //
+
+  cmGeneratorTarget* gtgt = this->GetGeneratorTarget(&cmtarget);
   cmGeneratorTarget::SourceFileFlags tsFlags =
-            this->GetGeneratorTarget(&cmtarget)->GetTargetSourceFileFlags(sf);
+      gtgt->GetTargetSourceFileFlags(sf);
   bool isResource = tsFlags.Type == cmGeneratorTarget::SourceFileTypeResource;
 
   // Is this a "private" or "public" framework header file?
   // Set the ATTRIBUTES attribute appropriately...
   //
-  if(cmtarget.IsFrameworkOnApple())
+  if(gtgt->IsFrameworkOnApple())
     {
     if(tsFlags.Type == cmGeneratorTarget::SourceFileTypePrivateHeader)
       {
@@ -1193,9 +1195,9 @@ cmGlobalXCodeGenerator::CreateXCodeTargets(cmLocalGenerator* gen,
       }
 
     // some build phases only apply to bundles and/or frameworks
-    bool isFrameworkTarget = cmtarget.IsFrameworkOnApple();
+    bool isFrameworkTarget = gtgt->IsFrameworkOnApple();
     bool isBundleTarget = cmtarget.GetPropertyAsBool("MACOSX_BUNDLE");
-    bool isCFBundleTarget = cmtarget.IsCFBundleOnApple();
+    bool isCFBundleTarget = gtgt->IsCFBundleOnApple();
 
     cmXCodeObject* buildFiles = 0;
 
@@ -1289,7 +1291,7 @@ cmGlobalXCodeGenerator::CreateXCodeTargets(cmLocalGenerator* gen,
         copyFilesBuildPhase->AddAttribute("dstSubfolderSpec",
           this->CreateString("6"));
         std::ostringstream ostr;
-        if (cmtarget.IsFrameworkOnApple())
+        if (gtgt->IsFrameworkOnApple())
           {
           // dstPath in frameworks is relative to Versions/<version>
           ostr << mit->first;
@@ -1467,8 +1469,10 @@ void cmGlobalXCodeGenerator::CreateCustomCommands(cmXCodeObject* buildPhases,
   std::vector<cmCustomCommand> postbuild
     = cmtarget.GetPostBuildCommands();
 
+  cmGeneratorTarget* gtgt = this->GetGeneratorTarget(&cmtarget);
+
   if(cmtarget.GetType() == cmState::SHARED_LIBRARY &&
-    !cmtarget.IsFrameworkOnApple())
+    !gtgt->IsFrameworkOnApple())
     {
     cmCustomCommandLines cmd;
     cmd.resize(1);
@@ -1500,7 +1504,6 @@ void cmGlobalXCodeGenerator::CreateCustomCommands(cmXCodeObject* buildPhases,
     }
 
   std::vector<cmSourceFile*> classes;
-  cmGeneratorTarget* gtgt = this->GetGeneratorTarget(&cmtarget);
   if (!gtgt->GetConfigCommonSourceFiles(classes))
     {
     return;
@@ -1943,7 +1946,7 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmTarget& target,
 
   const char* version = target.GetProperty("VERSION");
   const char* soversion = target.GetProperty("SOVERSION");
-  if(!gtgt->HasSOName(configName) || target.IsFrameworkOnApple())
+  if(!gtgt->HasSOName(configName) || gtgt->IsFrameworkOnApple())
     {
     version = 0;
     soversion = 0;
@@ -1990,7 +1993,7 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmTarget& target,
       pndir = gtgt->GetDirectory(configName);
       }
 
-    if(target.IsFrameworkOnApple() || target.IsCFBundleOnApple())
+    if(gtgt->IsFrameworkOnApple() || gtgt->IsCFBundleOnApple())
       {
       pnprefix = "";
       }
@@ -2043,7 +2046,7 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmTarget& target,
     {
     buildSettings->AddAttribute("LIBRARY_STYLE",
                                 this->CreateString("BUNDLE"));
-    if (target.IsCFBundleOnApple())
+    if (gtgt->IsCFBundleOnApple())
       {
       // It turns out that a BUNDLE is basically the same
       // in many ways as an application bundle, as far as
@@ -2639,23 +2642,24 @@ cmGlobalXCodeGenerator::GetTargetLinkFlagsVar(cmTarget const& cmtarget) const
 }
 
 //----------------------------------------------------------------------------
-const char* cmGlobalXCodeGenerator::GetTargetFileType(cmTarget& cmtarget)
+const char* cmGlobalXCodeGenerator::GetTargetFileType(
+    cmGeneratorTarget* target)
 {
-  switch(cmtarget.GetType())
+  switch(target->GetType())
     {
     case cmState::OBJECT_LIBRARY:
     case cmState::STATIC_LIBRARY:
       return "archive.ar";
     case cmState::MODULE_LIBRARY:
-      if (cmtarget.IsXCTestOnApple())
+      if (target->IsXCTestOnApple())
         return "wrapper.cfbundle";
-      else if (cmtarget.IsCFBundleOnApple())
+      else if (target->IsCFBundleOnApple())
         return "wrapper.plug-in";
       else
         return ((this->XcodeVersion >= 22)?
               "compiled.mach-o.executable" : "compiled.mach-o.dylib");
     case cmState::SHARED_LIBRARY:
-      return (cmtarget.GetPropertyAsBool("FRAMEWORK")?
+      return (target->GetPropertyAsBool("FRAMEWORK")?
               "wrapper.framework" : "compiled.mach-o.dylib");
     case cmState::EXECUTABLE:
       return "compiled.mach-o.executable";
@@ -2665,28 +2669,29 @@ const char* cmGlobalXCodeGenerator::GetTargetFileType(cmTarget& cmtarget)
 }
 
 //----------------------------------------------------------------------------
-const char* cmGlobalXCodeGenerator::GetTargetProductType(cmTarget& cmtarget)
+const char* cmGlobalXCodeGenerator::GetTargetProductType(
+    cmGeneratorTarget* target)
 {
-  switch(cmtarget.GetType())
+  switch(target->GetType())
     {
     case cmState::OBJECT_LIBRARY:
     case cmState::STATIC_LIBRARY:
       return "com.apple.product-type.library.static";
     case cmState::MODULE_LIBRARY:
-      if (cmtarget.IsXCTestOnApple())
+      if (target->IsXCTestOnApple())
         return "com.apple.product-type.bundle.unit-test";
-      else if (cmtarget.IsCFBundleOnApple())
+      else if (target->IsCFBundleOnApple())
         return "com.apple.product-type.bundle";
       else
         return ((this->XcodeVersion >= 22)?
                 "com.apple.product-type.tool" :
                 "com.apple.product-type.library.dynamic");
     case cmState::SHARED_LIBRARY:
-      return (cmtarget.GetPropertyAsBool("FRAMEWORK")?
+      return (target->GetPropertyAsBool("FRAMEWORK")?
               "com.apple.product-type.framework" :
               "com.apple.product-type.library.dynamic");
     case cmState::EXECUTABLE:
-      return (cmtarget.GetPropertyAsBool("MACOSX_BUNDLE")?
+      return (target->GetPropertyAsBool("MACOSX_BUNDLE")?
               "com.apple.product-type.application" :
               "com.apple.product-type.tool");
     default: break;
@@ -2727,9 +2732,11 @@ cmGlobalXCodeGenerator::CreateXCodeTarget(cmTarget& cmtarget,
   target->AddAttribute("name", this->CreateString(cmtarget.GetName()));
   target->AddAttribute("productName",this->CreateString(cmtarget.GetName()));
 
+  cmGeneratorTarget *gtgt = this->GetGeneratorTarget(&cmtarget);
+
   cmXCodeObject* fileRef =
     this->CreateObject(cmXCodeObject::PBXFileReference);
-  if(const char* fileType = this->GetTargetFileType(cmtarget))
+  if(const char* fileType = this->GetTargetFileType(gtgt))
     {
     fileRef->AddAttribute("explicitFileType", this->CreateString(fileType));
     }
@@ -2742,7 +2749,6 @@ cmGlobalXCodeGenerator::CreateXCodeTarget(cmTarget& cmtarget,
     }
   else
     {
-    cmGeneratorTarget *gtgt = this->GetGeneratorTarget(&cmtarget);
     fullName = gtgt->GetFullName(defConfig.c_str());
     }
   fileRef->AddAttribute("path", this->CreateString(fullName.c_str()));
@@ -2752,7 +2758,7 @@ cmGlobalXCodeGenerator::CreateXCodeTarget(cmTarget& cmtarget,
   fileRef->SetComment(cmtarget.GetName().c_str());
   target->AddAttribute("productReference",
                        this->CreateObjectReference(fileRef));
-  if(const char* productType = this->GetTargetProductType(cmtarget))
+  if(const char* productType = this->GetTargetProductType(gtgt))
     {
     target->AddAttribute("productType", this->CreateString(productType));
     }

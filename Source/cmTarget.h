@@ -96,7 +96,6 @@ public:
 
   ///! Set/Get the name of the target
   const std::string& GetName() const {return this->Name;}
-  std::string GetExportName() const;
 
   ///! Set the cmMakefile that owns this target
   void SetMakefile(cmMakefile *mf);
@@ -229,21 +228,12 @@ public:
       enabled.  */
   bool IsExecutableWithExports() const;
 
-  /** Return whether this target may be used to link another target.  */
-  bool IsLinkable() const;
-
   /** Return whether or not the target is for a DLL platform.  */
   bool IsDLLPlatform() const { return this->DLLPlatform; }
 
   /** Return whether this target is a shared library Framework on
       Apple.  */
   bool IsFrameworkOnApple() const;
-
-  /** Return whether this target is a CFBundle (plugin) on Apple.  */
-  bool IsCFBundleOnApple() const;
-
-  /** Return whether this target is a XCTest on Apple.  */
-  bool IsXCTestOnApple() const;
 
   /** Return whether this target is an executable Bundle on Apple.  */
   bool IsAppBundleOnApple() const;

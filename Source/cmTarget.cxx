@@ -345,17 +345,6 @@ bool cmTarget::IsExecutableWithExports() const
 }
 
 //----------------------------------------------------------------------------
-bool cmTarget::IsLinkable() const
-{
-  return (this->GetType() == cmState::STATIC_LIBRARY ||
-          this->GetType() == cmState::SHARED_LIBRARY ||
-          this->GetType() == cmState::MODULE_LIBRARY ||
-          this->GetType() == cmState::UNKNOWN_LIBRARY ||
-          this->GetType() == cmState::INTERFACE_LIBRARY ||
-          this->IsExecutableWithExports());
-}
-
-//----------------------------------------------------------------------------
 bool cmTarget::HasImportLibrary() const
 {
   return (this->DLLPlatform &&
@@ -377,21 +366,6 @@ bool cmTarget::IsAppBundleOnApple() const
   return (this->GetType() == cmState::EXECUTABLE &&
           this->Makefile->IsOn("APPLE") &&
           this->GetPropertyAsBool("MACOSX_BUNDLE"));
-}
-
-//----------------------------------------------------------------------------
-bool cmTarget::IsCFBundleOnApple() const
-{
-  return (this->GetType() == cmState::MODULE_LIBRARY &&
-          this->Makefile->IsOn("APPLE") &&
-          this->GetPropertyAsBool("BUNDLE"));
-}
-
-//----------------------------------------------------------------------------
-bool cmTarget::IsXCTestOnApple() const
-{
-  return (this->IsCFBundleOnApple() &&
-          this->GetPropertyAsBool("XCTEST"));
 }
 
 //----------------------------------------------------------------------------
@@ -1409,26 +1383,6 @@ void cmTarget::AppendProperty(const std::string& prop, const char* value,
     {
     this->Properties.AppendProperty(prop, value, asString);
     }
-}
-
-//----------------------------------------------------------------------------
-std::string cmTarget::GetExportName() const
-{
-  const char *exportName = this->GetProperty("EXPORT_NAME");
-
-  if (exportName && *exportName)
-    {
-    if (!cmGeneratorExpression::IsValidTargetName(exportName))
-      {
-      std::ostringstream e;
-      e << "EXPORT_NAME property \"" << exportName << "\" for \""
-        << this->GetName() << "\": is not valid.";
-      cmSystemTools::Error(e.str().c_str());
-      return "";
-      }
-    return exportName;
-    }
-  return this->GetName();
 }
 
 //----------------------------------------------------------------------------

@@ -139,7 +139,7 @@ const char *cmNinjaNormalTargetGenerator::GetVisibleTypeName() const
     case cmState::SHARED_LIBRARY:
       return "shared library";
     case cmState::MODULE_LIBRARY:
-      if (this->GetTarget()->IsCFBundleOnApple())
+      if (this->GetGeneratorTarget()->IsCFBundleOnApple())
         return "CFBundle shared module";
       else
         return "shared module";
@@ -281,7 +281,7 @@ cmNinjaNormalTargetGenerator
   }
 
   if (this->TargetNameOut != this->TargetNameReal &&
-    !this->GetTarget()->IsFrameworkOnApple()) {
+    !this->GetGeneratorTarget()->IsFrameworkOnApple()) {
     std::string cmakeCommand =
       this->GetLocalGenerator()->ConvertToOutputFormat(
         cmSystemTools::GetCMakeCommand(), cmLocalGenerator::SHELL);
@@ -412,7 +412,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                                      gt.GetFullPath(cfgName,
                                        /*implib=*/true));
 
-  if (target.IsAppBundleOnApple())
+  if (gt.IsAppBundleOnApple())
     {
     // Create the app bundle
     std::string outpath = gt.GetDirectory(cfgName);
@@ -428,13 +428,13 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
     targetOutputReal += this->TargetNameReal;
     targetOutputReal = this->ConvertToNinjaPath(targetOutputReal);
     }
-  else if (target.IsFrameworkOnApple())
+  else if (gt.IsFrameworkOnApple())
     {
     // Create the library framework.
     this->OSXBundleGenerator->CreateFramework(this->TargetNameOut,
                                               gt.GetDirectory(cfgName));
     }
-  else if(target.IsCFBundleOnApple())
+  else if(gt.IsCFBundleOnApple())
     {
     // Create the core foundation bundle.
     this->OSXBundleGenerator->CreateCFBundle(this->TargetNameOut,
@@ -732,7 +732,7 @@ void cmNinjaNormalTargetGenerator::WriteLinkStatement()
                         &usedResponseFile);
   this->WriteLinkRule(usedResponseFile);
 
-  if (targetOutput != targetOutputReal && !target.IsFrameworkOnApple())
+  if (targetOutput != targetOutputReal && !gt.IsFrameworkOnApple())
     {
     if (targetType == cmState::EXECUTABLE)
       {

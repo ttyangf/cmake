@@ -153,7 +153,7 @@ void cmMakefileLibraryTargetGenerator::WriteStaticLibraryRules()
 //----------------------------------------------------------------------------
 void cmMakefileLibraryTargetGenerator::WriteSharedLibraryRules(bool relink)
 {
-  if(this->Target->IsFrameworkOnApple())
+  if(this->GeneratorTarget->IsFrameworkOnApple())
     {
     this->WriteFrameworkRules(relink);
     return;
@@ -273,13 +273,13 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules
   // Construct the full path version of the names.
   std::string outpath;
   std::string outpathImp;
-  if(this->Target->IsFrameworkOnApple())
+  if(this->GeneratorTarget->IsFrameworkOnApple())
     {
     outpath = this->GeneratorTarget->GetDirectory(this->ConfigName);
     this->OSXBundleGenerator->CreateFramework(targetName, outpath);
     outpath += "/";
     }
-  else if(this->Target->IsCFBundleOnApple())
+  else if(this->GeneratorTarget->IsCFBundleOnApple())
     {
     outpath = this->GeneratorTarget->GetDirectory(this->ConfigName);
     this->OSXBundleGenerator->CreateCFBundle(targetName, outpath);
@@ -360,7 +360,7 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules
         buildEcho += " shared library ";
         break;
       case cmState::MODULE_LIBRARY:
-        if (this->Target->IsCFBundleOnApple())
+        if (this->GeneratorTarget->IsCFBundleOnApple())
             buildEcho += " CFBundle";
         buildEcho += " shared module ";
         break;
@@ -791,7 +791,8 @@ void cmMakefileLibraryTargetGenerator::WriteLibraryRules
 
   // Add a rule to create necessary symlinks for the library.
   // Frameworks are handled by cmOSXBundleGenerator.
-  if(targetOutPath != targetOutPathReal && !this->Target->IsFrameworkOnApple())
+  if(targetOutPath != targetOutPathReal
+     && !this->GeneratorTarget->IsFrameworkOnApple())
     {
     std::string symlink = "$(CMAKE_COMMAND) -E cmake_symlink_library ";
     symlink += targetOutPathReal;

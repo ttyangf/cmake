@@ -43,6 +43,8 @@ public:
 
   cmState::TargetType GetType() const;
   std::string GetName() const;
+  std::string GetExportName() const;
+
   const char *GetProperty(const std::string& prop) const;
   bool GetPropertyAsBool(const std::string& prop) const;
   void GetSourceFiles(std::vector<cmSourceFile*>& files,
@@ -409,6 +411,22 @@ public:
 
   /** Get a build-tree directory in which to place target support files.  */
   std::string GetSupportDirectory() const;
+
+  /** Return whether this target may be used to link another target.  */
+  bool IsLinkable() const;
+
+  /** Return whether this target is a shared library Framework on
+      Apple.  */
+  bool IsFrameworkOnApple() const;
+
+  /** Return whether this target is an executable Bundle on Apple.  */
+  bool IsAppBundleOnApple() const;
+
+  /** Return whether this target is a XCTest on Apple.  */
+  bool IsXCTestOnApple() const;
+
+  /** Return whether this target is a CFBundle (plugin) on Apple.  */
+  bool IsCFBundleOnApple() const;
 
   struct SourceFileFlags
   GetTargetSourceFileFlags(const cmSourceFile* sf) const;
