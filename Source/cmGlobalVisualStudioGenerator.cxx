@@ -475,8 +475,8 @@ void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(cmTarget& target)
       di != utilDepends.end(); ++di)
     {
     cmTarget const* dep = *di;
-    cmGeneratorTarget* gt = this->GetGeneratorTarget(dep);
-    if(allowLinkable || !VSLinkable(gt) || linked.count(dep))
+    cmGeneratorTarget* dgt = this->GetGeneratorTarget(dep);
+    if(allowLinkable || !VSLinkable(dgt) || linked.count(dep))
       {
       // Direct dependency allowed.
       vsTargetDepend.insert(dep->GetName());
