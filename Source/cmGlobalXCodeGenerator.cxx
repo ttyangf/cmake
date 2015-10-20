@@ -1615,6 +1615,7 @@ std::string cmGlobalXCodeGenerator::ExtractFlag(const char* flag,
 // This function removes each matching occurrence of the expression and
 // returns the last one (i.e., the dominant flag in GCC)
 std::string cmGlobalXCodeGenerator::ExtractFlagRegex(const char* exp,
+                                                     int matchIndex,
                                                      std::string& flags)
 {
   std::string retFlag;
@@ -1630,23 +1631,11 @@ std::string cmGlobalXCodeGenerator::ExtractFlagRegex(const char* exp,
 
   while(regex.find(flags.c_str() + offset))
     {
-    const std::string::size_type startPos = offset + regex.start(0);
-    const std::string::size_type endPos = offset + regex.end(0);
+    const std::string::size_type startPos = offset + regex.start(matchIndex);
+    const std::string::size_type endPos = offset + regex.end(matchIndex);
     const std::string::size_type size = endPos - startPos;
 
     offset = startPos + 1;
-
-    // match must be start of string or preceded by white space
-    if(startPos > 0 && flags[startPos - 1] != ' ')
-      {
-      continue;
-      }
-
-    // match must be succeeded by white space or end of string
-    if(endPos < flags.size() && flags[endPos] != ' ')
-      {
-      continue;
-      }
 
     retFlag.assign(flags, startPos, size);
     flags.replace(startPos, size, size, ' ');
@@ -2279,7 +2268,8 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmTarget& target,
     {
     std::string& flags = cflags[*li];
     std::string& gflag = gflags[*li];
-    std::string oflag = this->ExtractFlagRegex("-Ofast|-Os|-O[0-9]*", flags);
+    std::string oflag =
+      this->ExtractFlagRegex("(^| )(-Ofast|-Os|-O[0-9]*)( |$)", 2, flags);
     if(oflag.size() == 2)
       {
       optLevel = "1";
