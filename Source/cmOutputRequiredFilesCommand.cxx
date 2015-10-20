@@ -210,7 +210,8 @@ protected:
           qend = currentline.find('\"', qstart+1);
           }
         // extract the file being included
-        std::string includeFile = currentline.substr(qstart+1, qend - qstart-1);
+        std::string includeFile =
+          currentline.substr(qstart+1, qend - qstart-1);
         // see if the include matches the regular expression
         if(!this->IncludeFileRegularExpression.find(includeFile))
           {
@@ -507,7 +508,8 @@ protected:
       return fp;
       }
 
-    for(std::vector<std::string>::iterator i = this->IncludeDirectories.begin();
+    for(std::vector<std::string>::iterator i =
+        this->IncludeDirectories.begin();
         i != this->IncludeDirectories.end(); ++i)
       {
       std::string path = *i;
