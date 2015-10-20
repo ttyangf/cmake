@@ -459,7 +459,7 @@ cmGlobalXCodeGenerator::AddExtraTargets(cmLocalGenerator* root,
                         "echo", "Build all projects");
 
   cmGeneratorTarget* allBuildGt = new cmGeneratorTarget(allbuild, root);
-  root->AddGeneratorTarget(allBuildGt);
+  root->AddGeneratorTarget(allbuild, allBuildGt);
   root->GetGlobalGenerator()->AddGeneratorTarget(allbuild, allBuildGt);
 
   // Refer to the main build configuration file for easy editing.
@@ -495,7 +495,7 @@ cmGlobalXCodeGenerator::AddExtraTargets(cmLocalGenerator* root,
                           "make", "-f", file.c_str());
 
     cmGeneratorTarget* checkGt = new cmGeneratorTarget(check, root);
-    root->AddGeneratorTarget(checkGt);
+    root->AddGeneratorTarget(check, checkGt);
     root->GetGlobalGenerator()->AddGeneratorTarget(check, checkGt);
     }
 

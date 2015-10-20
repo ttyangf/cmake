@@ -73,23 +73,23 @@ void cmLocalNinjaGenerator::Generate()
       }
     }
 
-  std::vector<cmGeneratorTarget*> targets = this->GetGeneratorTargets();
-  for(std::vector<cmGeneratorTarget*>::iterator t = targets.begin();
+  cmGeneratorTargetsType targets = this->GetGeneratorTargets();
+  for(cmGeneratorTargetsType::iterator t = targets.begin();
       t != targets.end(); ++t)
     {
-    if ((*t)->GetType() == cmState::INTERFACE_LIBRARY)
+    if (t->second->GetType() == cmState::INTERFACE_LIBRARY)
       {
       continue;
       }
-    cmNinjaTargetGenerator* tg = cmNinjaTargetGenerator::New(*t);
+    cmNinjaTargetGenerator* tg = cmNinjaTargetGenerator::New(t->second);
     if(tg)
       {
       tg->Generate();
       // Add the target to "all" if required.
       if (!this->GetGlobalNinjaGenerator()->IsExcluded(
             this->GetGlobalNinjaGenerator()->GetLocalGenerators()[0],
-            *t))
-        this->GetGlobalNinjaGenerator()->AddDependencyToAll((*t)->Target);
+            t->second))
+        this->GetGlobalNinjaGenerator()->AddDependencyToAll(t->second->Target);
       delete tg;
       }
     }

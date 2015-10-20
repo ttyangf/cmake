@@ -68,14 +68,13 @@ void cmGlobalKdevelopGenerator::Generate()
     for (std::vector<cmLocalGenerator*>::const_iterator lg=lgs.begin();
          lg!=lgs.end(); lg++)
       {
-      std::vector<cmGeneratorTarget*> const& targets =
-          (*lg)->GetGeneratorTargets();
-      for (std::vector<cmGeneratorTarget*>::const_iterator ti =
-           targets.begin(); ti != targets.end(); ti++)
+      cmGeneratorTargetsType const& targets = (*lg)->GetGeneratorTargets();
+      for (cmGeneratorTargetsType::const_iterator ti = targets.begin();
+           ti != targets.end(); ti++)
         {
-        if ((*ti)->GetType()==cmState::EXECUTABLE)
+        if (ti->second->GetType()==cmState::EXECUTABLE)
           {
-          executable = (*ti)->GetLocation("");
+          executable = ti->second->GetLocation("");
           break;
           }
         }

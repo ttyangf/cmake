@@ -113,18 +113,18 @@ void cmLocalUnixMakefileGenerator3::Generate()
     this->Makefile->IsOn("CMAKE_SKIP_ASSEMBLY_SOURCE_RULES");
 
   // Generate the rule files for each target.
-  std::vector<cmGeneratorTarget*> targets = this->GetGeneratorTargets();
+  cmGeneratorTargetsType targets = this->GetGeneratorTargets();
   cmGlobalUnixMakefileGenerator3* gg =
     static_cast<cmGlobalUnixMakefileGenerator3*>(this->GlobalGenerator);
-  for(std::vector<cmGeneratorTarget*>::iterator t = targets.begin();
+  for(cmGeneratorTargetsType::iterator t = targets.begin();
       t != targets.end(); ++t)
     {
-    if ((*t)->GetType() == cmState::INTERFACE_LIBRARY)
+    if (t->second->GetType() == cmState::INTERFACE_LIBRARY)
       {
       continue;
       }
     cmsys::auto_ptr<cmMakefileTargetGenerator> tg(
-      cmMakefileTargetGenerator::New(*t));
+      cmMakefileTargetGenerator::New(t->second));
     if (tg.get())
       {
       tg->WriteRuleFiles();
@@ -174,11 +174,11 @@ void cmLocalUnixMakefileGenerator3::
 GetLocalObjectFiles(std::map<std::string, LocalObjectInfo> &localObjectFiles)
 {
   std::set<std::string> emitted;
-  std::vector<cmGeneratorTarget*> targets = this->GetGeneratorTargets();
-  for(std::vector<cmGeneratorTarget*>::iterator ti = targets.begin();
+  cmGeneratorTargetsType targets = this->GetGeneratorTargets();
+  for(cmGeneratorTargetsType::iterator ti = targets.begin();
       ti != targets.end(); ++ti)
     {
-    cmGeneratorTarget* gt = *ti;
+    cmGeneratorTarget* gt = ti->second;
     if (gt->GetType() == cmState::INTERFACE_LIBRARY)
       {
       continue;
@@ -417,22 +417,22 @@ void cmLocalUnixMakefileGenerator3
 
   // for each target we just provide a rule to cd up to the top and do a make
   // on the target
-  std::vector<cmGeneratorTarget*> targets = this->GetGeneratorTargets();
+  cmGeneratorTargetsType targets = this->GetGeneratorTargets();
   std::string localName;
-  for(std::vector<cmGeneratorTarget*>::iterator t = targets.begin();
+  for(cmGeneratorTargetsType::iterator t = targets.begin();
       t != targets.end(); ++t)
     {
-    if(((*t)->GetType() == cmState::EXECUTABLE) ||
-       ((*t)->GetType() == cmState::STATIC_LIBRARY) ||
-       ((*t)->GetType() == cmState::SHARED_LIBRARY) ||
-       ((*t)->GetType() == cmState::MODULE_LIBRARY) ||
-       ((*t)->GetType() == cmState::OBJECT_LIBRARY) ||
-       ((*t)->GetType() == cmState::UTILITY))
+    if((t->second->GetType() == cmState::EXECUTABLE) ||
+       (t->second->GetType() == cmState::STATIC_LIBRARY) ||
+       (t->second->GetType() == cmState::SHARED_LIBRARY) ||
+       (t->second->GetType() == cmState::MODULE_LIBRARY) ||
+       (t->second->GetType() == cmState::OBJECT_LIBRARY) ||
+       (t->second->GetType() == cmState::UTILITY))
       {
-      emitted.insert((*t)->GetName());
+      emitted.insert(t->second->GetName());
 
       // for subdirs add a rule to build this specific target by name.
-      localName = this->GetRelativeTargetDirectory(*t);
+      localName = this->GetRelativeTargetDirectory(t->second);
       localName += "/rule";
       commands.clear();
       depends.clear();
@@ -449,23 +449,23 @@ void cmLocalUnixMakefileGenerator3
                           localName, depends, commands, true);
 
       // Add a target with the canonical name (no prefix, suffix or path).
-      if(localName != (*t)->GetName())
+      if(localName != t->second->GetName())
         {
         commands.clear();
         depends.push_back(localName);
         this->WriteMakeRule(ruleFileStream, "Convenience name for target.",
-                            (*t)->GetName(), depends, commands, true);
+                            t->second->GetName(), depends, commands, true);
         }
 
       // Add a fast rule to build the target
       std::string makefileName =
-                         this->GetRelativeTargetDirectory(*t);
+                         this->GetRelativeTargetDirectory(t->second);
       makefileName += "/build.make";
       // make sure the makefile name is suitable for a makefile
       std::string makeTargetName =
-        this->GetRelativeTargetDirectory(*t);
+        this->GetRelativeTargetDirectory(t->second);
       makeTargetName += "/build";
-      localName = (*t)->GetName();
+      localName = t->second->GetName();
       localName += "/fast";
       depends.clear();
       commands.clear();
@@ -479,11 +479,11 @@ void cmLocalUnixMakefileGenerator3
 
       // Add a local name for the rule to relink the target before
       // installation.
-      if((*t)->NeedRelinkBeforeInstall(this->ConfigName))
+      if(t->second->NeedRelinkBeforeInstall(this->ConfigName))
         {
-        makeTargetName = this->GetRelativeTargetDirectory(*t);
+        makeTargetName = this->GetRelativeTargetDirectory(t->second);
         makeTargetName += "/preinstall";
-        localName = (*t)->GetName();
+        localName = t->second->GetName();
         localName += "/preinstall";
         depends.clear();
         commands.clear();
