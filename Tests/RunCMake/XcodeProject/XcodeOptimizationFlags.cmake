@@ -4,8 +4,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "")
 
 project(XcodeOptimizationFlags CXX)
 
-message(STATUS "NONE ${CMAKE_CXX_FLAGS} CXX ${CMAKE_CXX_FLAGS_RELEASE}")
-
 add_library(fooO1 STATIC foo.cpp)
 set_target_properties(fooO1 PROPERTIES COMPILE_OPTIONS -O1)
 
