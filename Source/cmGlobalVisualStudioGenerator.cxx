@@ -379,7 +379,7 @@ bool cmGlobalVisualStudioGenerator::ComputeTargetDepends()
       for(std::vector<cmGeneratorTarget*>::iterator ti = targets.begin();
           ti != targets.end(); ++ti)
         {
-        this->ComputeVSTargetDepends((*ti)->Target);
+        this->ComputeVSTargetDepends(*(*ti)->Target);
         }
       }
     }
