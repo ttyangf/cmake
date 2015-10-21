@@ -187,7 +187,7 @@ void cmLocalVisualStudio7Generator::WriteProjectFiles()
     // so don't build a projectfile for it
     if(!(*l)->GetProperty("EXTERNAL_MSPROJECT"))
       {
-      this->CreateSingleVCProj((*l)->GetName().c_str(), *l);
+      this->CreateSingleVCProj((*l)->GetName().c_str(), *(*l)->Target);
       }
     }
 }

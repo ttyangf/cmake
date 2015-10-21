@@ -98,7 +98,7 @@ void cmLocalVisualStudio6Generator::AddCMakeListsRules()
       this->Makefile->GetDefinition("CMAKE_SUPPRESS_REGENERATION");
     if (!cmSystemTools::IsOn(suppRegenRule))
       {
-      this->AddDSPBuildRule((*l)->Target);
+      this->AddDSPBuildRule(*(*l)->Target);
       }
     }
 }
@@ -133,21 +133,21 @@ void cmLocalVisualStudio6Generator::OutputDSPFile()
       case cmState::STATIC_LIBRARY:
       case cmState::OBJECT_LIBRARY:
         this->SetBuildType(STATIC_LIBRARY,
-                           (*l)->GetName().c_str(), (*l)->Target);
+                           (*l)->GetName().c_str(), *(*l)->Target);
         break;
       case cmState::SHARED_LIBRARY:
       case cmState::MODULE_LIBRARY:
         this->SetBuildType(DLL,
-                           (*l)->GetName().c_str(), (*l)->Target);
+                           (*l)->GetName().c_str(), *(*l)->Target);
         break;
       case cmState::EXECUTABLE:
         this->SetBuildType(EXECUTABLE,
-                           (*l)->GetName().c_str(), (*l)->Target);
+                           (*l)->GetName().c_str(), *(*l)->Target);
         break;
       case cmState::UTILITY:
       case cmState::GLOBAL_TARGET:
         this->SetBuildType(UTILITY,
-                           (*l)->GetName().c_str(), (*l)->Target);
+                           (*l)->GetName().c_str(), *(*l)->Target);
         break;
       case cmState::INTERFACE_LIBRARY:
         continue;
@@ -173,7 +173,7 @@ void cmLocalVisualStudio6Generator::OutputDSPFile()
           cmSystemTools::Error("Error creating directory: ", dir.c_str());
           }
         }
-      this->CreateSingleDSP((*l)->GetName().c_str(), (*l)->Target);
+      this->CreateSingleDSP((*l)->GetName().c_str(), *(*l)->Target);
       }
     }
 }

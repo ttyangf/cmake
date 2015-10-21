@@ -83,9 +83,9 @@ void cmLocalVisualStudio10Generator::Generate()
       continue;
       }
     if(static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator)
-       ->TargetIsFortranOnly((*l)->Target))
+       ->TargetIsFortranOnly(*(*l)->Target))
       {
-      this->CreateSingleVCProj((*l)->GetName().c_str(),(*l)->Target);
+      this->CreateSingleVCProj((*l)->GetName().c_str(), *(*l)->Target);
       }
     else
       {
