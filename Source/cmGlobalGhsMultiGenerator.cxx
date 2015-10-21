@@ -487,7 +487,7 @@ void cmGlobalGhsMultiGenerator::UpdateBuildFiles(
        tgtsI != tgts.end(); ++tgtsI)
     {
     const cmGeneratorTarget *tgt = *tgtsI;
-    if (IsTgtForBuild(tgt->Target))
+    if (IsTgtForBuild(tgt))
       {
       char const *rawFolderName = tgt->GetProperty("FOLDER");
       if (NULL == rawFolderName)
@@ -504,7 +504,7 @@ void cmGlobalGhsMultiGenerator::UpdateBuildFiles(
           GhsMultiGpj::PROJECT);
         }
       std::vector<cmsys::String> splitPath = cmSystemTools::SplitString(
-            cmGhsMultiTargetGenerator::GetRelBuildFileName(tgt->Target));
+            cmGhsMultiTargetGenerator::GetRelBuildFileName(tgt));
       std::string foldNameRelBuildFile(*(splitPath.end() - 2) + "/" +
                                        splitPath.back());
       *this->TargetFolderBuildStreams[folderName] << foldNameRelBuildFile
