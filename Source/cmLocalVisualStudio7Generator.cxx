@@ -129,7 +129,7 @@ void cmLocalVisualStudio7Generator::FixGlobalTargets()
   for(std::vector<cmGeneratorTarget*>::iterator l = tgts.begin();
       l != tgts.end(); l++)
     {
-    cmTarget& tgt = (*l)->Target;
+    cmTarget& tgt = *(*l)->Target;
     if(tgt.GetType() == cmState::GLOBAL_TARGET)
       {
       std::vector<std::string> no_depends;
