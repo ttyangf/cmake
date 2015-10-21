@@ -516,13 +516,12 @@ void cmGlobalGhsMultiGenerator::UpdateBuildFiles(
     }
 }
 
-bool cmGlobalGhsMultiGenerator::IsTgtForBuild(const cmTarget *tgt)
+bool cmGlobalGhsMultiGenerator::IsTgtForBuild(const cmGeneratorTarget *tgt)
 {
   const std::string config =
-    tgt->GetMakefile()->GetSafeDefinition("CMAKE_BUILD_TYPE");
+    tgt->Target->GetMakefile()->GetSafeDefinition("CMAKE_BUILD_TYPE");
   std::vector<cmSourceFile *> tgtSources;
-  cmGeneratorTarget* gt = this->GetGeneratorTarget(tgt);
-  gt->GetSourceFiles(tgtSources, config);
+  tgt->GetSourceFiles(tgtSources, config);
   bool tgtInBuild = true;
   char const *excludeFromAll = tgt->GetProperty("EXCLUDE_FROM_ALL");
   if (NULL != excludeFromAll && '1' == excludeFromAll[0] &&
