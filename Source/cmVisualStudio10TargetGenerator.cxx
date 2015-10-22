@@ -2674,7 +2674,7 @@ cmVisualStudio10TargetGenerator::WriteLinkOptions(std::string const& config)
 
   this->WriteString("</Link>\n", 2);
   if(!this->GlobalGenerator->NeedLinkLibraryDependencies(
-              *this->GeneratorTarget->Target))
+              this->GeneratorTarget))
     {
     this->WriteString("<ProjectReference>\n", 2);
     this->WriteString(
@@ -2883,7 +2883,7 @@ void cmVisualStudio10TargetGenerator::WriteProjectReferences()
     // skip fortran targets as they can not be processed by MSBuild
     // the only reference will be in the .sln file
     if(static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator)
-       ->TargetIsFortranOnly(*dt->Target))
+       ->TargetIsFortranOnly(dt))
       {
       continue;
       }

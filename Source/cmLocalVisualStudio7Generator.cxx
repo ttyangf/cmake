@@ -228,7 +228,7 @@ void cmLocalVisualStudio7Generator
 {
   cmGlobalVisualStudioGenerator* gg
       = static_cast<cmGlobalVisualStudioGenerator*>(this->GlobalGenerator);
-  this->FortranProject = gg->TargetIsFortranOnly(*target->Target);
+  this->FortranProject = gg->TargetIsFortranOnly(target);
   this->WindowsCEProject = gg->TargetsWindowsCE();
 
   // Intel Fortran for VS10 uses VS9 format ".vfproj" files.
@@ -1183,7 +1183,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(std::ostream& fout,
       }
     fout << "\t\t\t<Tool\n"
          << "\t\t\t\tName=\"" << tool << "\"\n";
-    if(!gg->NeedLinkLibraryDependencies(*target->Target))
+    if(!gg->NeedLinkLibraryDependencies(target))
       {
       fout << "\t\t\t\tLinkLibraryDependencies=\"false\"\n";
       }
@@ -1282,7 +1282,7 @@ void cmLocalVisualStudio7Generator::OutputBuildTool(std::ostream& fout,
       }
     fout << "\t\t\t<Tool\n"
          << "\t\t\t\tName=\"" << tool << "\"\n";
-    if(!gg->NeedLinkLibraryDependencies(*target->Target))
+    if(!gg->NeedLinkLibraryDependencies(target))
       {
       fout << "\t\t\t\tLinkLibraryDependencies=\"false\"\n";
       }
@@ -1686,10 +1686,10 @@ cmLocalVisualStudio7GeneratorFCInfo
 //----------------------------------------------------------------------------
 std::string
 cmLocalVisualStudio7Generator
-::ComputeLongestObjectDirectory(cmTarget& target) const
+::ComputeLongestObjectDirectory(const cmGeneratorTarget *target) const
 {
   std::vector<std::string> configs;
-  target.GetMakefile()->GetConfigurations(configs);
+  target->Target->GetMakefile()->GetConfigurations(configs);
 
   // Compute the maximum length configuration name.
   std::string config_max;
@@ -1708,9 +1708,7 @@ cmLocalVisualStudio7Generator
   std::string dir_max;
   dir_max += this->GetCurrentBinaryDirectory();
   dir_max += "/";
-  cmGeneratorTarget* gt =
-    this->GlobalGenerator->GetGeneratorTarget(&target);
-  dir_max += this->GetTargetDirectory(gt);
+  dir_max += this->GetTargetDirectory(target);
   dir_max += "/";
   dir_max += config_max;
   dir_max += "/";
@@ -2047,7 +2045,7 @@ void cmLocalVisualStudio7Generator
     event.Write(target->Target->GetPreLinkCommands());
     }
   cmsys::auto_ptr<cmCustomCommand> pcc(
-    this->MaybeCreateImplibDir(*target->Target, configName, this->FortranProject));
+    this->MaybeCreateImplibDir(target, configName, this->FortranProject));
   if(pcc.get())
     {
     event.Write(*pcc);
