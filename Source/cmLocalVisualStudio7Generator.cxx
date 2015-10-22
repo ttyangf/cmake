@@ -34,7 +34,8 @@ public:
     LocalGenerator(e) {}
   typedef cmComputeLinkInformation::ItemVector ItemVector;
   void OutputLibraries(std::ostream& fout, ItemVector const& libs);
-  void OutputObjects(std::ostream& fout, cmGeneratorTarget* t, const char* isep = 0);
+  void OutputObjects(std::ostream& fout, cmGeneratorTarget* t,
+                     const char* isep = 0);
 private:
   cmLocalVisualStudio7Generator* LocalGenerator;
 };
@@ -322,7 +323,9 @@ cmSourceFile* cmLocalVisualStudio7Generator::CreateVCProjBuildRule()
     }
 }
 
-void cmLocalVisualStudio7Generator::WriteConfigurations(std::ostream& fout, std::vector<std::string> const& configs,
+void cmLocalVisualStudio7Generator::WriteConfigurations(
+    std::ostream& fout,
+    std::vector<std::string> const& configs,
   const std::string& libName, cmGeneratorTarget *target
   )
 {
@@ -2045,7 +2048,8 @@ void cmLocalVisualStudio7Generator
     event.Write(target->Target->GetPreLinkCommands());
     }
   cmsys::auto_ptr<cmCustomCommand> pcc(
-    this->MaybeCreateImplibDir(target, configName, this->FortranProject));
+    this->MaybeCreateImplibDir(target,
+                               configName, this->FortranProject));
   if(pcc.get())
     {
     event.Write(*pcc);
@@ -2209,8 +2213,9 @@ cmLocalVisualStudio7Generator::WriteProjectStart(std::ostream& fout,
 }
 
 
-void cmLocalVisualStudio7Generator::WriteVCProjFooter(std::ostream& fout,
-                                                      cmGeneratorTarget *target)
+void cmLocalVisualStudio7Generator::WriteVCProjFooter(
+    std::ostream& fout,
+    cmGeneratorTarget *target)
 {
   fout << "\t<Globals>\n";
 

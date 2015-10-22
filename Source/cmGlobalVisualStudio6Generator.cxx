@@ -235,12 +235,13 @@ void cmGlobalVisualStudio6Generator
       std::string project = target->GetName();
       std::string location = expath;
       this->WriteExternalProject(fout, project.c_str(),
-                                 location.c_str(), target->Target->GetUtilities());
+          location.c_str(), target->Target->GetUtilities());
       }
     else
       {
       std::string dspname = GetVS6TargetName(target->GetName());
-      std::string dir = target->GetLocalGenerator()->GetCurrentBinaryDirectory();
+      std::string dir =
+          target->GetLocalGenerator()->GetCurrentBinaryDirectory();
       dir = root->Convert(dir.c_str(), cmLocalGenerator::START_OUTPUT);
       this->WriteProject(fout, dspname.c_str(), dir.c_str(), target);
       }
@@ -287,9 +288,9 @@ void cmGlobalVisualStudio6Generator::OutputDSWFile()
 // Note, that dependencies from executables to
 // the libraries it uses are also done here
 void cmGlobalVisualStudio6Generator::WriteProject(std::ostream& fout,
-                                                  const std::string& dspname,
-                                                  const char* dir,
-                                                  const cmGeneratorTarget *target)
+                                            const std::string& dspname,
+                                            const char* dir,
+                                            const cmGeneratorTarget *target)
 {
   fout << "#########################################################"
     "######################\n\n";

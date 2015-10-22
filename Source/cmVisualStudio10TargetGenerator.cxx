@@ -273,7 +273,8 @@ void cmVisualStudio10TargetGenerator::Generate()
     return;
     }
   // Tell the global generator the name of the project file
-  this->GeneratorTarget->Target->SetProperty("GENERATOR_FILE_NAME",this->Name.c_str());
+  this->GeneratorTarget->Target
+      ->SetProperty("GENERATOR_FILE_NAME",this->Name.c_str());
   this->GeneratorTarget->Target->SetProperty("GENERATOR_FILE_NAME_EXT",
                             ".vcxproj");
   if(this->GeneratorTarget->GetType() <= cmState::OBJECT_LIBRARY)
@@ -730,7 +731,8 @@ void cmVisualStudio10TargetGenerator
   cmGlobalVisualStudio10Generator* gg =
     static_cast<cmGlobalVisualStudio10Generator*>(this->GlobalGenerator);
   const char* mfcFlag =
-    this->GeneratorTarget->Target->GetMakefile()->GetDefinition("CMAKE_MFC_FLAG");
+    this->GeneratorTarget->
+      Target->GetMakefile()->GetDefinition("CMAKE_MFC_FLAG");
   std::string mfcFlagValue = mfcFlag ? mfcFlag : "0";
 
   std::string useOfMfcValue = "false";
@@ -1935,7 +1937,8 @@ bool cmVisualStudio10TargetGenerator::ComputeClOptions(
                                           linkLanguage, configName.c_str());
 
   // Get preprocessor definitions for this directory.
-  std::string defineFlags = this->GeneratorTarget->Target->GetMakefile()->GetDefineFlags();
+  std::string defineFlags =
+      this->GeneratorTarget->Target->GetMakefile()->GetDefineFlags();
   if(this->MSTools)
     {
     clOptions.FixExceptionHandlingDefault();
@@ -2820,12 +2823,12 @@ cmVisualStudio10TargetGenerator::WriteEvents(std::string const& configName)
   if (!addedPrelink)
     {
     this->WriteEvent("PreLinkEvent",
-                     this->GeneratorTarget->Target->GetPreLinkCommands(), configName);
+        this->GeneratorTarget->Target->GetPreLinkCommands(), configName);
     }
   this->WriteEvent("PreBuildEvent",
-                   this->GeneratorTarget->Target->GetPreBuildCommands(), configName);
+        this->GeneratorTarget->Target->GetPreBuildCommands(), configName);
   this->WriteEvent("PostBuildEvent",
-                   this->GeneratorTarget->Target->GetPostBuildCommands(), configName);
+        this->GeneratorTarget->Target->GetPostBuildCommands(), configName);
 }
 
 void cmVisualStudio10TargetGenerator::WriteEvent(

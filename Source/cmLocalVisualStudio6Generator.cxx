@@ -407,7 +407,8 @@ void cmLocalVisualStudio6Generator
     std::string objectNameDir;
     if(target->HasExplicitObjectName(*sf))
       {
-      objectNameDir = cmSystemTools::GetFilenamePath(target->GetObjectName(*sf));
+      objectNameDir =
+          cmSystemTools::GetFilenamePath(target->GetObjectName(*sf));
       }
 
     // Add per-source file flags.
@@ -1050,7 +1051,8 @@ void cmLocalVisualStudio6Generator
       }
     }
   std::vector<std::string>::const_iterator i;
-  const std::vector<std::string>& libdirs = target->Target->GetLinkDirectories();
+  const std::vector<std::string>& libdirs =
+      target->Target->GetLinkDirectories();
   for(i = libdirs.begin(); i != libdirs.end(); ++i)
     {
     std::string path = *i;
@@ -1245,7 +1247,8 @@ void cmLocalVisualStudio6Generator
     extraLinkOptionsRelease += targetLinkFlags;
     }
 
-  if(const char* targetLinkFlags = target->GetProperty("LINK_FLAGS_MINSIZEREL"))
+  if(const char* targetLinkFlags =
+     target->GetProperty("LINK_FLAGS_MINSIZEREL"))
     {
     extraLinkOptionsMinSizeRel += " ";
     extraLinkOptionsMinSizeRel += targetLinkFlags;
