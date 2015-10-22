@@ -56,7 +56,8 @@ public:
   std::string GetTargetDirectory(cmGeneratorTarget const* target) const;
   cmSourceFile* CreateVCProjBuildRule();
   void WriteStampFiles();
-  virtual std::string ComputeLongestObjectDirectory(cmGeneratorTarget const*) const;
+  virtual std::string ComputeLongestObjectDirectory(
+      cmGeneratorTarget const*) const;
 
   virtual void ReadAndStoreExternalGUID(const std::string& name,
                                         const char* path);
@@ -72,7 +73,8 @@ private:
   void FixGlobalTargets();
   void WriteProjectFiles();
   void WriteVCProjHeader(std::ostream& fout, const std::string& libName,
-                         cmGeneratorTarget* tgt, std::vector<cmSourceGroup> &sgs);
+                         cmGeneratorTarget* tgt,
+                         std::vector<cmSourceGroup> &sgs);
   void WriteVCProjFooter(std::ostream& fout, cmGeneratorTarget* target);
   void WriteVCProjFile(std::ostream& fout, const std::string& libName,
                        cmGeneratorTarget* tgt);
@@ -86,14 +88,16 @@ private:
   std::string ConvertToXMLOutputPath(const char* path);
   std::string ConvertToXMLOutputPathSingle(const char* path);
   void OutputTargetRules(std::ostream& fout, const std::string& configName,
-                         cmGeneratorTarget* target, const std::string& libName);
+                         cmGeneratorTarget* target,
+                         const std::string& libName);
   void OutputBuildTool(std::ostream& fout, const std::string& configName,
                        cmGeneratorTarget* t, const Options& targetOptions);
   void OutputLibraryDirectories(std::ostream& fout,
                                 std::vector<std::string> const& dirs);
   void WriteProjectSCC(std::ostream& fout, cmGeneratorTarget *target);
   void WriteProjectStart(std::ostream& fout, const std::string& libName,
-                         cmGeneratorTarget* tgt, std::vector<cmSourceGroup> &sgs);
+                         cmGeneratorTarget* tgt,
+                         std::vector<cmSourceGroup> &sgs);
   void WriteProjectStartFortran(std::ostream& fout, const std::string& libName,
                                 cmGeneratorTarget* tgt);
   void WriteVCProjBeginGroup(std::ostream& fout,

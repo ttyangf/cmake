@@ -394,7 +394,8 @@ static bool VSLinkable(cmGeneratorTarget const* t)
 }
 
 //----------------------------------------------------------------------------
-void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(cmGeneratorTarget* target)
+void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(
+    cmGeneratorTarget* target)
 {
   if(this->VSTargetDepends.find(target) != this->VSTargetDepends.end())
     {
@@ -506,7 +507,8 @@ void cmGlobalVisualStudioGenerator::FindMakeProgram(cmMakefile* mf)
 
 //----------------------------------------------------------------------------
 std::string
-cmGlobalVisualStudioGenerator::GetUtilityDepend(cmGeneratorTarget const* target)
+cmGlobalVisualStudioGenerator::GetUtilityDepend(
+    cmGeneratorTarget const* target)
 {
   UtilityDependsMap::iterator i = this->UtilityDepends.find(target);
   if(i == this->UtilityDepends.end())

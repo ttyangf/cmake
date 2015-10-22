@@ -44,7 +44,8 @@ public:
 
   cmGlobalVisualStudioGenerator::VSVersion GetVersion() const;
 
-  virtual std::string ComputeLongestObjectDirectory(cmGeneratorTarget const*) const = 0;
+  virtual std::string ComputeLongestObjectDirectory(
+      cmGeneratorTarget const*) const = 0;
 
   virtual void AddCMakeListsRules() = 0;
 

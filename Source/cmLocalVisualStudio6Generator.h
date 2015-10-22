@@ -50,7 +50,8 @@ public:
 
   virtual
   std::string GetTargetDirectory(cmGeneratorTarget const* target) const;
-  virtual std::string ComputeLongestObjectDirectory(cmGeneratorTarget const*) const;
+  virtual std::string ComputeLongestObjectDirectory(
+      cmGeneratorTarget const*) const;
 private:
   std::string DSPHeaderTemplate;
   std::string DSPFooterTemplate;
@@ -84,7 +85,8 @@ private:
   std::string CreateTargetRules(cmGeneratorTarget* target,
                                 const std::string& configName,
                                 const std::string& libName);
-  void ComputeLinkOptions(cmGeneratorTarget* target, const std::string& configName,
+  void ComputeLinkOptions(cmGeneratorTarget* target,
+                          const std::string& configName,
                           const std::string extraOptions,
                           std::string& options);
   void OutputObjects(cmGeneratorTarget* target, const char* tool,
