@@ -841,7 +841,7 @@ cmLocalVisualStudio6Generator::CreateTargetRules(cmGeneratorTarget *target,
   event.Write(target->Target->GetPreBuildCommands());
   event.Write(target->Target->GetPreLinkCommands());
   cmsys::auto_ptr<cmCustomCommand> pcc(
-    this->MaybeCreateImplibDir(target, configName, false));
+    this->MaybeCreateImplibDir(*target->Target, configName, false));
   if(pcc.get())
     {
     event.Write(*pcc);
@@ -1935,7 +1935,7 @@ cmLocalVisualStudio6Generator
 //----------------------------------------------------------------------------
 std::string
 cmLocalVisualStudio6Generator
-::ComputeLongestObjectDirectory(cmGeneratorTarget const*) const
+::ComputeLongestObjectDirectory(cmTarget&) const
 {
   // Compute the maximum length configuration name.
   std::string config_max;

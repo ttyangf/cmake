@@ -303,19 +303,19 @@ std::string cmGlobalVisualStudioGenerator::GetUserMacrosRegKeyBase()
 }
 
 //----------------------------------------------------------------------------
-void cmGlobalVisualStudioGenerator::FillLinkClosure(
-        cmGeneratorTarget const* target,
+void cmGlobalVisualStudioGenerator::FillLinkClosure(cmTarget const* target,
                                                     TargetSet& linked)
 {
   if(linked.insert(target).second)
     {
-    TargetDependSet const& depends = this->GetTargetDirectDepends(target);
+    cmGeneratorTarget* gt = this->GetGeneratorTarget(target);
+    TargetDependSet const& depends = this->GetTargetDirectDepends(gt);
     for(TargetDependSet::const_iterator di = depends.begin();
         di != depends.end(); ++di)
       {
       if(di->IsLink())
         {
-        this->FillLinkClosure(*di, linked);
+        this->FillLinkClosure((*di)->Target, linked);
         }
       }
     }
@@ -323,8 +323,7 @@ void cmGlobalVisualStudioGenerator::FillLinkClosure(
 
 //----------------------------------------------------------------------------
 cmGlobalVisualStudioGenerator::TargetSet const&
-cmGlobalVisualStudioGenerator::GetTargetLinkClosure(
-        cmGeneratorTarget *target)
+cmGlobalVisualStudioGenerator::GetTargetLinkClosure(cmTarget* target)
 {
   TargetSetMap::iterator i = this->TargetLinkClosure.find(target);
   if(i == this->TargetLinkClosure.end())
@@ -338,8 +337,7 @@ cmGlobalVisualStudioGenerator::GetTargetLinkClosure(
 
 //----------------------------------------------------------------------------
 void cmGlobalVisualStudioGenerator::FollowLinkDepends(
-        const cmGeneratorTarget *target,
-        std::set<const cmGeneratorTarget *> &linked)
+  cmTarget const* target, std::set<cmTarget const*>& linked)
 {
   if(target->GetType() == cmState::INTERFACE_LIBRARY)
     {
@@ -350,13 +348,14 @@ void cmGlobalVisualStudioGenerator::FollowLinkDepends(
     {
     // Static library targets do not list their link dependencies so
     // we must follow them transitively now.
-    TargetDependSet const& depends = this->GetTargetDirectDepends(target);
+    cmGeneratorTarget* gt = this->GetGeneratorTarget(target);
+    TargetDependSet const& depends = this->GetTargetDirectDepends(gt);
     for(TargetDependSet::const_iterator di = depends.begin();
         di != depends.end(); ++di)
       {
       if(di->IsLink())
         {
-        this->FollowLinkDepends(*di, linked);
+        this->FollowLinkDepends((*di)->Target, linked);
         }
       }
     }
@@ -380,7 +379,7 @@ bool cmGlobalVisualStudioGenerator::ComputeTargetDepends()
       for(std::vector<cmGeneratorTarget*>::iterator ti = targets.begin();
           ti != targets.end(); ++ti)
         {
-        this->ComputeVSTargetDepends(*ti);
+        this->ComputeVSTargetDepends(*(*ti)->Target);
         }
       }
     }
@@ -394,14 +393,13 @@ static bool VSLinkable(cmGeneratorTarget const* t)
 }
 
 //----------------------------------------------------------------------------
-void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(
-    cmGeneratorTarget* target)
+void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(cmTarget& target)
 {
-  if(this->VSTargetDepends.find(target) != this->VSTargetDepends.end())
+  if(this->VSTargetDepends.find(&target) != this->VSTargetDepends.end())
     {
     return;
     }
-  VSDependSet& vsTargetDepend = this->VSTargetDepends[target];
+  VSDependSet& vsTargetDepend = this->VSTargetDepends[&target];
   // VS <= 7.1 has two behaviors that affect solution dependencies.
   //
   // (1) Solution-level dependencies between a linkable target and a
@@ -421,18 +419,19 @@ void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(
   // leaving them out for the static library itself but following them
   // transitively for other targets.
 
-  bool allowLinkable = (target->GetType() != cmState::STATIC_LIBRARY &&
-                        target->GetType() != cmState::SHARED_LIBRARY &&
-                        target->GetType() != cmState::MODULE_LIBRARY &&
-                        target->GetType() != cmState::EXECUTABLE);
+  bool allowLinkable = (target.GetType() != cmState::STATIC_LIBRARY &&
+                        target.GetType() != cmState::SHARED_LIBRARY &&
+                        target.GetType() != cmState::MODULE_LIBRARY &&
+                        target.GetType() != cmState::EXECUTABLE);
 
-  TargetDependSet const& depends = this->GetTargetDirectDepends(target);
+  cmGeneratorTarget* gt = this->GetGeneratorTarget(&target);
+  TargetDependSet const& depends = this->GetTargetDirectDepends(gt);
 
   // Collect implicit link dependencies (target_link_libraries).
   // Static libraries cannot depend on their link implementation
   // due to behavior (2), but they do not really need to.
-  std::set<cmGeneratorTarget const*> linkDepends;
-  if(target->GetType() != cmState::STATIC_LIBRARY)
+  std::set<cmTarget const*> linkDepends;
+  if(target.GetType() != cmState::STATIC_LIBRARY)
     {
     for(TargetDependSet::const_iterator di = depends.begin();
         di != depends.end(); ++di)
@@ -440,54 +439,55 @@ void cmGlobalVisualStudioGenerator::ComputeVSTargetDepends(
       cmTargetDepend dep = *di;
       if(dep.IsLink())
         {
-        this->FollowLinkDepends(*di, linkDepends);
+        this->FollowLinkDepends(dep->Target, linkDepends);
         }
       }
     }
 
   // Collect explicit util dependencies (add_dependencies).
-  std::set<cmGeneratorTarget const*> utilDepends;
+  std::set<cmTarget const*> utilDepends;
   for(TargetDependSet::const_iterator di = depends.begin();
       di != depends.end(); ++di)
     {
     cmTargetDepend dep = *di;
     if(dep.IsUtil())
       {
-      this->FollowLinkDepends(*di, utilDepends);
+      this->FollowLinkDepends(dep->Target, utilDepends);
       }
     }
 
   // Collect all targets linked by this target so we can avoid
   // intermediate targets below.
   TargetSet linked;
-  if(target->GetType() != cmState::STATIC_LIBRARY)
+  if(target.GetType() != cmState::STATIC_LIBRARY)
     {
-    linked = this->GetTargetLinkClosure(target);
+    linked = this->GetTargetLinkClosure(&target);
     }
 
   // Emit link dependencies.
-  for(std::set<cmGeneratorTarget const*>::iterator di = linkDepends.begin();
+  for(std::set<cmTarget const*>::iterator di = linkDepends.begin();
       di != linkDepends.end(); ++di)
     {
-    cmGeneratorTarget const* dep = *di;
+    cmTarget const* dep = *di;
     vsTargetDepend.insert(dep->GetName());
     }
 
   // Emit util dependencies.  Possibly use intermediate targets.
-  for(std::set<cmGeneratorTarget const*>::iterator di = utilDepends.begin();
+  for(std::set<cmTarget const*>::iterator di = utilDepends.begin();
       di != utilDepends.end(); ++di)
     {
-    cmGeneratorTarget const* dgt = *di;
-    if(allowLinkable || !VSLinkable(dgt) || linked.count(dgt))
+    cmTarget const* dep = *di;
+    cmGeneratorTarget* dgt = this->GetGeneratorTarget(dep);
+    if(allowLinkable || !VSLinkable(dgt) || linked.count(dep))
       {
       // Direct dependency allowed.
-      vsTargetDepend.insert(dgt->GetName());
+      vsTargetDepend.insert(dep->GetName());
       }
     else
       {
       // Direct dependency on linkable target not allowed.
       // Use an intermediate utility target.
-      vsTargetDepend.insert(this->GetUtilityDepend(dgt));
+      vsTargetDepend.insert(this->GetUtilityDepend(dep));
       }
     }
 }
@@ -507,8 +507,7 @@ void cmGlobalVisualStudioGenerator::FindMakeProgram(cmMakefile* mf)
 
 //----------------------------------------------------------------------------
 std::string
-cmGlobalVisualStudioGenerator::GetUtilityDepend(
-    cmGeneratorTarget const* target)
+cmGlobalVisualStudioGenerator::GetUtilityDepend(cmTarget const* target)
 {
   UtilityDependsMap::iterator i = this->UtilityDepends.find(target);
   if(i == this->UtilityDepends.end())
@@ -831,20 +830,21 @@ void RegisterVisualStudioMacros(const std::string& macrosFile,
     }
 }
 bool
-cmGlobalVisualStudioGenerator::TargetIsFortranOnly(
-        const cmGeneratorTarget* target)
+cmGlobalVisualStudioGenerator::TargetIsFortranOnly(cmTarget const& target)
 {
+  cmGeneratorTarget* gt = this->GetGeneratorTarget(&target);
+
   // check to see if this is a fortran build
   std::set<std::string> languages;
   {
   // Issue diagnostic if the source files depend on the config.
   std::vector<cmSourceFile*> sources;
-  if (!target->GetConfigCommonSourceFiles(sources))
+  if (!gt->GetConfigCommonSourceFiles(sources))
     {
     return false;
     }
   }
-  target->GetLanguages(languages, "");
+  gt->GetLanguages(languages, "");
   if(languages.size() == 1)
     {
     if(*languages.begin() == "Fortran")
@@ -892,7 +892,9 @@ cmGlobalVisualStudioGenerator::OrderedTargetDependSet
   for (TargetSet::const_iterator it = targets.begin();
        it != targets.end(); ++it)
     {
-    this->insert(*it);
+    cmGeneratorTarget* gt =
+        (*it)->GetMakefile()->GetGlobalGenerator()->GetGeneratorTarget(*it);
+    this->insert(gt);
     }
 }
 

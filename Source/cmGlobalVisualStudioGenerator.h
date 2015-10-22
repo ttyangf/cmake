@@ -73,7 +73,7 @@ public:
                              const char* vsSolutionFile = 0);
 
   // return true if target is fortran only
-  bool TargetIsFortranOnly(const cmGeneratorTarget *t);
+  bool TargetIsFortranOnly(cmTarget const& t);
 
   /** Get the top-level registry key for this VS version.  */
   std::string GetRegistryBase();
@@ -88,7 +88,7 @@ public:
   /** Return true if building for Windows CE */
   virtual bool TargetsWindowsCE() const { return false; }
 
-  class TargetSet: public std::set<cmGeneratorTarget const*> {};
+  class TargetSet: public std::set<cmTarget const*> {};
   class TargetCompare
   {
     std::string First;
@@ -122,16 +122,15 @@ protected:
 
   virtual bool ComputeTargetDepends();
   class VSDependSet: public std::set<std::string> {};
-  class VSDependMap: public std::map<cmGeneratorTarget const*, VSDependSet> {};
+  class VSDependMap: public std::map<cmTarget const*, VSDependSet> {};
   VSDependMap VSTargetDepends;
-  void ComputeVSTargetDepends(cmGeneratorTarget *);
+  void ComputeVSTargetDepends(cmTarget&);
 
-  bool CheckTargetLinks(cmGeneratorTarget& target, const std::string& name);
-  std::string GetUtilityForTarget(cmGeneratorTarget& target,
-                                  const std::string&);
-  virtual std::string WriteUtilityDepend(cmGeneratorTarget const*) = 0;
-  std::string GetUtilityDepend(cmGeneratorTarget const* target);
-  typedef std::map<cmGeneratorTarget const*, std::string> UtilityDependsMap;
+  bool CheckTargetLinks(cmTarget& target, const std::string& name);
+  std::string GetUtilityForTarget(cmTarget& target, const std::string&);
+  virtual std::string WriteUtilityDepend(cmTarget const*) = 0;
+  std::string GetUtilityDepend(cmTarget const* target);
+  typedef std::map<cmTarget const*, std::string> UtilityDependsMap;
   UtilityDependsMap UtilityDepends;
 
 protected:
@@ -142,14 +141,13 @@ private:
   void PrintCompilerAdvice(std::ostream&, std::string const&,
                            const char*) const {}
 
-  void FollowLinkDepends(cmGeneratorTarget const* target,
-                         std::set<cmGeneratorTarget const*>& linked);
+  void FollowLinkDepends(cmTarget const* target,
+                         std::set<cmTarget const*>& linked);
 
-  class TargetSetMap: public std::map<cmGeneratorTarget*, TargetSet> {};
+  class TargetSetMap: public std::map<cmTarget*, TargetSet> {};
   TargetSetMap TargetLinkClosure;
-  void FillLinkClosure(const cmGeneratorTarget *target,
-                       TargetSet& linked);
-  TargetSet const& GetTargetLinkClosure(cmGeneratorTarget* target);
+  void FillLinkClosure(cmTarget const* target, TargetSet& linked);
+  TargetSet const& GetTargetLinkClosure(cmTarget* target);
 };
 
 class cmGlobalVisualStudioGenerator::OrderedTargetDependSet:
