@@ -299,7 +299,7 @@ void cmGlobalVisualStudio6Generator::WriteProject(std::ostream& fout,
   fout << "Package=<5>\n{{{\n}}}\n\n";
   fout << "Package=<4>\n";
   fout << "{{{\n";
-  VSDependSet const& depends = this->VSTargetDepends[target->Target];
+  VSDependSet const& depends = this->VSTargetDepends[target];
   for(VSDependSet::const_iterator di = depends.begin();
       di != depends.end(); ++di)
     {
@@ -310,7 +310,7 @@ void cmGlobalVisualStudio6Generator::WriteProject(std::ostream& fout,
     }
   fout << "}}}\n\n";
 
-  UtilityDependsMap::iterator ui = this->UtilityDepends.find(target->Target);
+  UtilityDependsMap::iterator ui = this->UtilityDepends.find(target);
   if(ui != this->UtilityDepends.end())
     {
     const char* uname = ui->second.c_str();
@@ -383,12 +383,14 @@ void cmGlobalVisualStudio6Generator::WriteDSWHeader(std::ostream& fout)
 
 //----------------------------------------------------------------------------
 std::string
-cmGlobalVisualStudio6Generator::WriteUtilityDepend(const cmTarget *target)
+cmGlobalVisualStudio6Generator::WriteUtilityDepend(
+        const cmGeneratorTarget *target)
 {
   std::string pname = target->GetName();
   pname += "_UTILITY";
   pname = GetVS6TargetName(pname.c_str());
-  std::string fname = target->GetMakefile()->GetCurrentBinaryDirectory();
+  std::string fname =
+          target->GetLocalGenerator()->GetCurrentBinaryDirectory();
   fname += "/";
   fname += pname;
   fname += ".dsp";
