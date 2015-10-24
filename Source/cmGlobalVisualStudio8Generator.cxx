@@ -468,7 +468,7 @@ bool cmGlobalVisualStudio8Generator::NeedLinkLibraryDependencies(
       ui != target->Target->GetUtilities().end(); ++ui)
     {
     if(cmGeneratorTarget* depTarget =
-        this->FindGeneratorTarget(ui->c_str()))
+        target->GetLocalGenerator()->FindGeneratorTargetToUse(ui->c_str()))
       {
       if(depTarget->GetType() != cmState::INTERFACE_LIBRARY
           && depTarget->GetProperty("EXTERNAL_MSPROJECT"))
