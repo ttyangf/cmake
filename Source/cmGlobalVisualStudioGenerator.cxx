@@ -307,7 +307,7 @@ void cmGlobalVisualStudioGenerator::FillLinkClosure(
         const cmGeneratorTarget *target,
         TargetSet& linked)
 {
-  if(linked.insert(target->Target).second)
+  if(linked.insert(target).second)
     {
     TargetDependSet const& depends =
             this->GetTargetDirectDepends(target);
@@ -326,10 +326,10 @@ void cmGlobalVisualStudioGenerator::FillLinkClosure(
 cmGlobalVisualStudioGenerator::TargetSet const&
 cmGlobalVisualStudioGenerator::GetTargetLinkClosure(cmGeneratorTarget* target)
 {
-  TargetSetMap::iterator i = this->TargetLinkClosure.find(target->Target);
+  TargetSetMap::iterator i = this->TargetLinkClosure.find(target);
   if(i == this->TargetLinkClosure.end())
     {
-    TargetSetMap::value_type entry(target->Target, TargetSet());
+    TargetSetMap::value_type entry(target, TargetSet());
     i = this->TargetLinkClosure.insert(entry).first;
     this->FillLinkClosure(target, i->second);
     }
