@@ -257,6 +257,7 @@ bool cmGlobalVisualStudio8Generator::AddCheckTarget()
 
   cmGeneratorTarget* gt = new cmGeneratorTarget(tgt, lg);
   lg->AddGeneratorTarget(gt);
+  this->AddGeneratorTarget(tgt, gt);
 
   // Organize in the "predefined targets" folder:
   //

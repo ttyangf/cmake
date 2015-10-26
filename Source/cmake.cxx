@@ -448,6 +448,7 @@ bool cmake::FindPackage(const std::vector<std::string>& args)
   // read in the list file to fill the cache
   snapshot.SetDefaultDefinitions();
   cmsys::auto_ptr<cmMakefile> mf(new cmMakefile(gg, snapshot));
+  cmsys::auto_ptr<cmLocalGenerator> lg(gg->CreateLocalGenerator(mf.get()));
 
   mf->SetArgcArgv(args);
 
@@ -480,8 +481,6 @@ bool cmake::FindPackage(const std::vector<std::string>& args)
     std::vector<std::string> includeDirs;
     cmSystemTools::ExpandListArgument(includes, includeDirs);
 
-    gg->CreateGenerationObjects();
-    cmLocalGenerator* lg = gg->LocalGenerators[0];
     std::string includeFlags = lg->GetIncludeFlags(includeDirs, 0, language);
 
     std::string definitions = mf->GetSafeDefinition("PACKAGE_DEFINITIONS");
@@ -511,9 +510,8 @@ bool cmake::FindPackage(const std::vector<std::string>& args)
     std::string linkPath;
     std::string flags;
     std::string linkFlags;
-    gg->CreateGenerationObjects();
-    cmGeneratorTarget *gtgt = gg->FindGeneratorTarget(tgt->GetName());
-    cmLocalGenerator* lg = gtgt->GetLocalGenerator();
+    gg->CreateGeneratorTargets(cmGlobalGenerator::AllTargets, lg.get());
+    cmGeneratorTarget *gtgt = gg->GetGeneratorTarget(tgt);
     lg->GetTargetFlags(linkLibs, frameworkPath, linkPath, flags, linkFlags,
                        gtgt, false);
     linkLibs = frameworkPath + linkPath + linkLibs;

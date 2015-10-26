@@ -42,6 +42,10 @@ class cmInstallTargetGenerator;
 class cmInstallFilesGenerator;
 class cmExportBuildFileGenerator;
 
+typedef std::map<cmTarget const*,
+                 cmGeneratorTarget*,
+                 cmTarget::StrictTargetComparison> cmGeneratorTargetsType;
+
 /** \class cmGlobalGenerator
  * \brief Responsible for overseeing the generation process for the entire tree
  *
@@ -303,6 +307,14 @@ public:
   TargetDependSet const& GetTargetDirectDepends(
       const cmGeneratorTarget* target);
 
+  /** Get per-target generator information.  */
+  cmGeneratorTarget* GetGeneratorTarget(cmTarget const*) const;
+
+  void AddGeneratorTarget(cmTarget* t, cmGeneratorTarget* gt)
+  {
+    this->GeneratorTargets[t] = gt;
+  }
+
   const std::map<std::string, std::vector<cmLocalGenerator*> >& GetProjectMap()
                                                const {return this->ProjectMap;}
 
@@ -470,6 +482,8 @@ private:
   typedef std::map<cmGeneratorTarget const*, TargetDependSet> TargetDependMap;
   TargetDependMap TargetDependencies;
 
+  // Per-target generator information.
+  cmGeneratorTargetsType GeneratorTargets;
   friend class cmake;
   void CreateGeneratorTargets(TargetTypes targetTypes, cmMakefile* mf,
                    cmLocalGenerator* lg,
