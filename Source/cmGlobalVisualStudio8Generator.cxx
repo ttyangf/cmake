@@ -353,16 +353,17 @@ void cmGlobalVisualStudio8Generator::AddExtraIDETargets()
   cmGlobalVisualStudio7Generator::AddExtraIDETargets();
   if(this->AddCheckTarget())
     {
-    for (unsigned int i = 0; i < this->Makefiles.size(); ++i)
+    for (unsigned int i = 0; i < this->LocalGenerators.size(); ++i)
       {
-      cmTargets& tgts = this->Makefiles[i]->GetTargets();
+      std::vector<cmGeneratorTarget*> tgts =
+          this->LocalGenerators[i]->GetGeneratorTargets();
       // All targets depend on the build-system check target.
-      for(cmTargets::iterator ti = tgts.begin();
+      for(std::vector<cmGeneratorTarget*>::iterator ti = tgts.begin();
           ti != tgts.end(); ++ti)
         {
-        if(ti->first != CMAKE_CHECK_BUILD_SYSTEM_TARGET)
+        if((*ti)->GetName() != CMAKE_CHECK_BUILD_SYSTEM_TARGET)
           {
-          ti->second->AddUtility(CMAKE_CHECK_BUILD_SYSTEM_TARGET);
+          (*ti)->AddUtility(CMAKE_CHECK_BUILD_SYSTEM_TARGET);
           }
         }
       }
