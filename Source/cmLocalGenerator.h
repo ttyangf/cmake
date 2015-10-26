@@ -127,7 +127,6 @@ public:
 
   void AddGeneratorTarget(cmGeneratorTarget* gt);
   void AddImportedGeneratorTarget(cmGeneratorTarget* gt);
-  void AddOwnedImportedGeneratorTarget(cmGeneratorTarget* gt);
 
   cmGeneratorTarget* FindGeneratorTarget(const std::string& name) const;
   cmGeneratorTarget* FindGeneratorTargetToUse(const std::string& name) const;
@@ -381,7 +380,6 @@ protected:
   std::set<cmGeneratorTarget const*> WarnCMP0063;
   std::vector<cmGeneratorTarget*> GeneratorTargets;
   std::vector<cmGeneratorTarget*> ImportedGeneratorTargets;
-  std::vector<cmGeneratorTarget*> OwnedImportedGeneratorTargets;
   std::map<std::string, std::string> AliasTargets;
 
   bool EmitUniversalBinaryFlags;
