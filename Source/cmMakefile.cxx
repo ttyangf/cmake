@@ -733,7 +733,7 @@ void cmMakefile::ConfigureFinalPass()
     }
 #if defined(_WIN32) && !defined(__CYGWIN__)
   // Do old-style link dependency analysis only for CM_USE_OLD_VS6.
-  if(this->Makefile->GetGlobalGenerator()->IsForVS6())
+  if(this->GetGlobalGenerator()->IsForVS6())
     {
     for (cmTargets::iterator l = this->Targets.begin();
          l != this->Targets.end(); l++)
@@ -747,7 +747,7 @@ void cmMakefile::ConfigureFinalPass()
       // system generation uses up-to-date information even if other cache
       // invalidation code in this source file is buggy.
 
-      l->second->AnalyzeLibDependenciesForVS6(this);
+      l->second.AnalyzeLibDependenciesForVS6(this);
       }
     }
 #endif
