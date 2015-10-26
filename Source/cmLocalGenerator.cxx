@@ -1821,21 +1821,11 @@ void cmLocalGenerator::AddLanguageFlags(std::string& flags,
 cmGeneratorTarget*
 cmLocalGenerator::FindGeneratorTargetToUse(const std::string& name) const
 {
-  std::vector<cmGeneratorTarget*>::const_iterator
-    imported = std::find_if(this->ImportedGeneratorTargets.begin(),
-                            this->ImportedGeneratorTargets.end(),
-                            NamedGeneratorTargetFinder(name));
-  if(imported != this->ImportedGeneratorTargets.end())
+  if (cmTarget *t = this->Makefile->FindTargetToUse(name))
     {
-    return *imported;
+    return this->GetGlobalGenerator()->GetGeneratorTarget(t);
     }
-
-  if(cmGeneratorTarget* t = this->FindGeneratorTarget(name))
-    {
-    return t;
-    }
-
-  return this->GetGlobalGenerator()->FindGeneratorTarget(name);
+  return 0;
 }
 
 //----------------------------------------------------------------------------
