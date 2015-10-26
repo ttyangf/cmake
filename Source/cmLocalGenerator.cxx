@@ -62,6 +62,8 @@ cmLocalGenerator::cmLocalGenerator(cmGlobalGenerator* gg,
 
 cmLocalGenerator::~cmLocalGenerator()
 {
+  cmDeleteAll(this->GeneratorTargets);
+  cmDeleteAll(this->OwnedImportedGeneratorTargets);
 }
 
 void cmLocalGenerator::IssueMessage(cmake::MessageType t,
@@ -458,6 +460,11 @@ void cmLocalGenerator::AddGeneratorTarget(cmGeneratorTarget* gt)
 void cmLocalGenerator::AddImportedGeneratorTarget(cmGeneratorTarget* gt)
 {
   this->ImportedGeneratorTargets.push_back(gt);
+}
+
+void cmLocalGenerator::AddOwnedImportedGeneratorTarget(cmGeneratorTarget* gt)
+{
+  this->OwnedImportedGeneratorTargets.push_back(gt);
 }
 
 struct NamedGeneratorTargetFinder
@@ -1821,11 +1828,21 @@ void cmLocalGenerator::AddLanguageFlags(std::string& flags,
 cmGeneratorTarget*
 cmLocalGenerator::FindGeneratorTargetToUse(const std::string& name) const
 {
-  if (cmTarget *t = this->Makefile->FindTargetToUse(name))
+  std::vector<cmGeneratorTarget*>::const_iterator
+    imported = std::find_if(this->ImportedGeneratorTargets.begin(),
+                            this->ImportedGeneratorTargets.end(),
+                            NamedGeneratorTargetFinder(name));
+  if(imported != this->ImportedGeneratorTargets.end())
     {
-    return this->GetGlobalGenerator()->GetGeneratorTarget(t);
+    return *imported;
     }
-  return 0;
+
+  if(cmGeneratorTarget* t = this->FindGeneratorTarget(name))
+    {
+    return t;
+    }
+
+  return this->GetGlobalGenerator()->FindGeneratorTarget(name);
 }
 
 //----------------------------------------------------------------------------
