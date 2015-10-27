@@ -363,7 +363,7 @@ void cmGlobalVisualStudio8Generator::AddExtraIDETargets()
         {
         if((*ti)->GetName() != CMAKE_CHECK_BUILD_SYSTEM_TARGET)
           {
-          (*ti)->AddUtility(CMAKE_CHECK_BUILD_SYSTEM_TARGET);
+          (*ti)->Target->AddUtility(CMAKE_CHECK_BUILD_SYSTEM_TARGET);
           }
         }
       }

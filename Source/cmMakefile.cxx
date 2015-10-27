@@ -747,7 +747,7 @@ void cmMakefile::ConfigureFinalPass()
       // system generation uses up-to-date information even if other cache
       // invalidation code in this source file is buggy.
 
-      l->second.AnalyzeLibDependenciesForVS6(this);
+      l->second.AnalyzeLibDependenciesForVS6(*this);
       }
     }
 #endif
