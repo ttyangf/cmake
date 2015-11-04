@@ -8,7 +8,7 @@
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # CPackDeb may be used to create Deb package using CPack.
-# CPackDeb is a CPack generator thus it uses the `CPACK_XXX` variables
+# CPackDeb is a CPack generator thus it uses the ``CPACK_XXX`` variables
 # used by CPack : https://cmake.org/Wiki/CMake:CPackConfiguration.
 # CPackDeb generator should work on any linux host but it will produce
 # better deb package when Debian specific tools 'dpkg-xxx' are usable on
@@ -18,7 +18,7 @@
 # :code:`CPACK_DEBIAN_XXX` variables.
 #
 # :code:`CPACK_DEBIAN_<COMPONENT>_XXXX` variables may be used in order to have
-# **component** specific values.  Note however that `<COMPONENT>` refers to the
+# **component** specific values.  Note however that ``<COMPONENT>`` refers to the
 # **grouping name** written in upper case. It may be either a component name or
 # a component GROUP name.
 #
