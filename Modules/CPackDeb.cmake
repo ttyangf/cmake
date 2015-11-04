@@ -357,11 +357,11 @@
 # .. variable:: CPACK_DEBIAN_PACKAGE_SOURCE
 #               CPACK_DEBIAN_<COMPONENT>_PACKAGE_SOURCE
 #
-#  Sets the `Source` field of the binary Debian package.
+#  Sets the ``Source`` field of the binary Debian package.
 #  When the binary package name is not the same as the source package name
 #  (in particular when several components/binaries are generated from one
 #  source) the source from which the binary has been generated should be
-#  indicated with the field `Source`.
+#  indicated with the field ``Source``.
 #
 #  * Mandatory : NO
 #  * Default   :
