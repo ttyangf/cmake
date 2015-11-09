@@ -1,5 +1,5 @@
 cpack-deb-new-component-vars
-----------------------------------
+----------------------------
 
 * The :module:`CPackDeb` module learned to set Package, Section
   and Priority control fields per-component.
