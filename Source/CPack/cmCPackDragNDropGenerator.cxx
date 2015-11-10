@@ -442,12 +442,12 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
     {
     dmgSize += cmSystemTools::FileLength(cpack_dmg_background_image.c_str());
     }
-  dmgSize += 8388608; //add 8MB for the DS_Store and buffer
+  dmgSize += 8569344; //add ~8MB for the DS_Store and buffer
 
   //now that we have computed the size of the disk image we need to convert
   //it to kb. The reason for this is that the hdiutil doesn't have a byte
   //size specifier.
-  const unsigned long dmgSizeAsKB = dmgSize / 1024;
+  const unsigned long dmgSizeAsKB = (dmgSize + 1023) / 1024;
 
   std::string temp_image = this->GetOption("CPACK_TOPLEVEL_DIRECTORY");
   temp_image += "/temp.dmg";
