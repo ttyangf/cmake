@@ -440,6 +440,7 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
   unsigned long dmgSize = compute_folder_content_size( staging_path );
   if (!cpack_dmg_background_image.empty())
     {
+    dmgSize += 4096; // extra 4k per entry as in compute_folder_content_size
     dmgSize += cmSystemTools::FileLength(cpack_dmg_background_image.c_str());
     }
   dmgSize += 8569344; //add ~8MB for the DS_Store and buffer
