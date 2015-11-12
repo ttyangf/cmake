@@ -15,10 +15,8 @@
 #include "cmSystemTools.h"
 #include "cmGeneratedFileStream.h"
 
-#include <cmsys/Directory.hxx>
-#include <cmsys/FStream.hxx>
 #include <cmsys/RegularExpression.hxx>
-#include <cmsys/SystemTools.hxx>
+#include <cmsys/FStream.hxx>
 
 #include <iomanip>
 
@@ -68,53 +66,6 @@ static const char* SLASTREnglish =
 "    }\n"
 "};\n"
 "\n";
-
-
-namespace
-{
-  //computes the size of all items in a given folder.
-  //will not traverse symlinked folders
-  unsigned long compute_folder_content_size( const std::string& path )
-  {
-  unsigned long sum = 0; //total size in bytes
-  cmsys::Directory dir;
-  dir.Load(path.c_str());
-  for (unsigned long fileNum = 0; fileNum <  dir.GetNumberOfFiles(); ++fileNum)
-    {
-    const std::string fileName(dir.GetFile(fileNum));
-    const bool is_not_dot_file = fileName != std::string(".") &&
-                                 fileName != std::string("..");
-    if ( is_not_dot_file )
-      {
-      std::string fullPath = path;
-      fullPath += "/";
-      fullPath += fileName;
-
-      const bool is_folder =
-                    cmSystemTools::FileIsDirectory(fullPath.c_str());
-      const bool is_file =
-                    !is_folder;
-      const bool is_symlink =
-                    cmSystemTools::FileIsSymlink(fullPath.c_str());
-
-      //add extra 4K for each entry, simulating extra file-system space needed
-      //to hold entry.
-      sum += 4096;
-
-      if( is_folder && !is_symlink)
-        {
-        sum += cmSystemTools::FileLength(fullPath.c_str());
-        sum += compute_folder_content_size(fullPath);
-        }
-      else if( is_file )
-        {
-        sum += cmSystemTools::FileLength(fullPath.c_str());
-        }
-      }
-    }
-  return sum;
-  }
-}
 
 //----------------------------------------------------------------------
 cmCPackDragNDropGenerator::cmCPackDragNDropGenerator()
@@ -380,10 +331,6 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
     this->GetOption("CPACK_DMG_LANGUAGES")
       ? this->GetOption("CPACK_DMG_LANGUAGES") : "";
 
-  const std::string cpack_dmg_ds_store_setup_script =
-    this->GetOption("CPACK_DMG_DS_STORE_SETUP_SCRIPT")
-    ? this->GetOption("CPACK_DMG_DS_STORE_SETUP_SCRIPT") : "";
-
   // only put license on dmg if is user provided
   if(!cpack_license_file.empty() &&
       cpack_license_file.find("CPack.GenericLicense.txt") != std::string::npos)
@@ -430,26 +377,64 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
       }
     }
 
-  // Create a temporary read-write disk image. If we are adding a DS_Store,
-  // Background or running a script we need to allocate some buffer space
-  // in the image, otherwise we won't have enough room
-
-  //first compute the size of the staging_path which requires us to
-  //iterate over
-  const std::string staging_path = staging.str();
-  unsigned long dmgSize = compute_folder_content_size( staging_path );
-  if (!cpack_dmg_background_image.empty())
+  // Optionally add a custom .DS_Store file
+  // (e.g. for setting background/layout) ...
+  if(!cpack_dmg_ds_store.empty())
     {
-    dmgSize += 4096; // extra 4k per entry as in compute_folder_content_size
-    dmgSize += cmSystemTools::FileLength(cpack_dmg_background_image.c_str());
+    std::ostringstream package_settings_source;
+    package_settings_source << cpack_dmg_ds_store;
+
+    std::ostringstream package_settings_destination;
+    package_settings_destination << staging.str() << "/.DS_Store";
+
+    if(!this->CopyFile(package_settings_source, package_settings_destination))
+      {
+      cmCPackLogger(cmCPackLog::LOG_ERROR,
+        "Error copying disk volume settings file.  "
+                    "Check the value of CPACK_DMG_DS_STORE."
+        << std::endl);
+
+      return 0;
+      }
     }
-  dmgSize += 8569344; //add ~8MB for the DS_Store and buffer
 
-  //now that we have computed the size of the disk image we need to convert
-  //it to kb. The reason for this is that the hdiutil doesn't have a byte
-  //size specifier.
-  const unsigned long dmgSizeAsKB = (dmgSize + 1023) / 1024;
+  // Optionally add a custom background image ...
+  if(!cpack_dmg_background_image.empty())
+    {
+    std::ostringstream package_background_source;
+    package_background_source << cpack_dmg_background_image;
 
+    std::ostringstream package_background_destination;
+    package_background_destination << staging.str() << "/background.png";
+
+    if(!this->CopyFile(package_background_source,
+        package_background_destination))
+      {
+      cmCPackLogger(cmCPackLog::LOG_ERROR,
+        "Error copying disk volume background image.  "
+                    "Check the value of CPACK_DMG_BACKGROUND_IMAGE."
+        << std::endl);
+
+      return 0;
+      }
+
+    std::ostringstream temp_background_hiding_command;
+    temp_background_hiding_command << this->GetOption("CPACK_COMMAND_SETFILE");
+    temp_background_hiding_command << " -a V \"";
+    temp_background_hiding_command << package_background_destination.str();
+    temp_background_hiding_command << "\"";
+
+    if(!this->RunCommand(temp_background_hiding_command))
+      {
+        cmCPackLogger(cmCPackLog::LOG_ERROR,
+          "Error setting attributes on disk volume background image."
+          << std::endl);
+
+      return 0;
+      }
+    }
+
+  // Create a temporary read-write disk image ...
   std::string temp_image = this->GetOption("CPACK_TOPLEVEL_DIRECTORY");
   temp_image += "/temp.dmg";
 
@@ -457,7 +442,6 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
   temp_image_command << this->GetOption("CPACK_COMMAND_HDIUTIL");
   temp_image_command << " create";
   temp_image_command << " -ov";
-  temp_image_command << " -size " << dmgSizeAsKB << "k";
   temp_image_command << " -srcfolder \"" << staging.str() << "\"";
   temp_image_command << " -volname \""
     << cpack_dmg_volume_name << "\"";
@@ -473,16 +457,10 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
     return 0;
     }
 
-  //mount the image and set the ds_store or custom icon flag
-  const bool remount_image =  !cpack_dmg_background_image.empty() ||
-                              !cpack_dmg_ds_store.empty() ||
-                              !cpack_dmg_ds_store_setup_script.empty() ||
-                              !cpack_package_icon.empty();
-  if(remount_image)
+  // Optionally set the custom icon flag for the image ...
+  if(!cpack_package_icon.empty())
     {
-    //store that we have a failure so that we always unmount the image
-    //before we exit
-    bool had_error = false;
+    std::ostringstream temp_mount;
 
     std::ostringstream attach_command;
     attach_command << this->GetOption("CPACK_COMMAND_HDIUTIL");
@@ -498,103 +476,25 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
 
       return 0;
       }
+
     cmsys::RegularExpression mountpoint_regex(".*(/Volumes/[^\n]+)\n.*");
     mountpoint_regex.find(attach_output.c_str());
-
-    std::ostringstream temp_mount;
     temp_mount << mountpoint_regex.match(1);
 
-    // Optionally add a custom background image ...
-    // Make sure the background file type is the same as the custom image
-    // and that the file is hidden so it doesn't show up.
-    if(!cpack_dmg_background_image.empty())
+    std::ostringstream setfile_command;
+    setfile_command << this->GetOption("CPACK_COMMAND_SETFILE");
+    setfile_command << " -a C";
+    setfile_command << " \"" << temp_mount.str() << "\"";
+
+    if(!this->RunCommand(setfile_command))
       {
-      const std::string extension =
-          cmSystemTools::GetFilenameLastExtension(cpack_dmg_background_image);
-      std::ostringstream package_background_source;
-      package_background_source << cpack_dmg_background_image;
+      cmCPackLogger(cmCPackLog::LOG_ERROR,
+        "Error assigning custom icon to temporary disk image."
+        << std::endl);
 
-      std::ostringstream package_background_destination;
-      package_background_destination << temp_mount.str()
-                                     << "/.background/background" << extension;
-
-      if(!this->CopyFile(package_background_source,
-          package_background_destination))
-        {
-        cmCPackLogger(cmCPackLog::LOG_ERROR,
-          "Error copying disk volume background image.  "
-                      "Check the value of CPACK_DMG_BACKGROUND_IMAGE."
-          << std::endl);
-
-        had_error = true;
-        }
+      return 0;
       }
 
-    // Figure out if we have a .DS_Store to install or if we need to run
-    // an apple-script to generate a .DS_Store
-    if(!cpack_dmg_ds_store.empty())
-      {
-      // Optionally add a custom .DS_Store file
-      // (e.g. for setting background/layout) ...
-      std::ostringstream package_settings_source;
-      package_settings_source << cpack_dmg_ds_store;
-
-      std::ostringstream package_settings_destination;
-      package_settings_destination << temp_mount.str() << "/.DS_Store";
-
-      if(!this->CopyFile(package_settings_source,
-                         package_settings_destination))
-        {
-        cmCPackLogger(cmCPackLog::LOG_ERROR,
-          "Error copying disk volume settings file.  "
-                      "Check the value of CPACK_DMG_DS_STORE."
-          << std::endl);
-
-        had_error = true;
-        }
-      }
-    else if(!cpack_dmg_ds_store_setup_script.empty())
-      {
-      //If you don't have a custom .DS_Store file
-      //we can execute a custom apple script to generate the .DS_Store for
-      //the application. We pass in as arguments to the apple script
-      //the location of the disk image
-      std::ostringstream setup_script_command;
-
-      setup_script_command << "osascript"
-                           << " \"" << cpack_dmg_ds_store_setup_script << "\""
-                           << " \"" << cpack_dmg_volume_name << "\"";
-
-      std::string error;
-      if(!this->RunCommand(setup_script_command, &error))
-        {
-        cmCPackLogger(cmCPackLog::LOG_ERROR,
-          "Error executing custom script on disk image." << std::endl
-          << error
-          << std::endl);
-
-        had_error = true;
-        }
-      }
-
-    if(!cpack_package_icon.empty())
-      {
-      std::ostringstream setfile_command;
-      setfile_command << this->GetOption("CPACK_COMMAND_SETFILE");
-      setfile_command << " -a C";
-      setfile_command << " \"" << temp_mount.str() << "\"";
-
-      if(!this->RunCommand(setfile_command))
-        {
-        cmCPackLogger(cmCPackLog::LOG_ERROR,
-          "Error assigning custom icon to temporary disk image."
-          << std::endl);
-
-        had_error = true;
-        }
-      }
-
-    //finish by detaching the package
     std::ostringstream detach_command;
     detach_command << this->GetOption("CPACK_COMMAND_HDIUTIL");
     detach_command << " detach";
@@ -606,11 +506,6 @@ int cmCPackDragNDropGenerator::CreateDMG(const std::string& src_dir,
         "Error detaching temporary disk image."
         << std::endl);
 
-      had_error = true;
-      }
-
-    if(had_error)
-      {
       return 0;
       }
     }
