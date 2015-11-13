@@ -15,11 +15,12 @@ if(DEFINED ENV{CRAYOS_VERSION})
 elseif(DEFINED ENV{XTOS_VERSION})
   set(CMAKE_SYSTEM_VERSION "$ENV{XTOS_VERSION}")
 else()
-  message(FATAL_ERROR "Neither the CRAYXC or CRAYXT CMake variables are defined.  Thjis platform file should not be used directly but instead only from the CrayPrgEnv toolchain file")
+  message(FATAL_ERROR "Neither the CRAYOS_VERSION or XTOS_VERSION environment variables are defined.  This platform file should be used inside the Cray Linux Environment for targeting compute nodes (NIDs)")
 endif()
 message(STATUS "Cray Linux Environment ${CMAKE_SYSTEM_VERSION}")
 
 # All cray systems are x86 CPUs and have been for quite some time
+# Note: this may need to change in the future with 64-bit ARM
 set(CMAKE_SYSTEM_PROCESSOR "x86_64")
 
 set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
@@ -42,7 +43,7 @@ get_filename_component(__cmake_install_dir "${CMAKE_ROOT}" PATH)
 get_filename_component(__cmake_install_dir "${__cmake_install_dir}" PATH)
 
 
-# Note: Some cray's have the SYSROOT_DIR variable defined, pointing to a copy
+# Note: Some Cray's have the SYSROOT_DIR variable defined, pointing to a copy
 # of the NIDs userland.  If so, then we'll use it.  Otherwise, just assume
 # the userland from the login node is ok
 
@@ -106,5 +107,5 @@ if(_CRAYPE_ROOT AND
    ((CMAKE_C_COMPILER MATCHES "${_CRAYPE_ROOT}") OR
     (CMAKE_CXX_COMPILER MATCHES "${_CRAYPE_ROOT}") OR
     (CMAKE_Fortran_COMPILER MATCHES "${_CRAYPE_ROOT}")))
-  include(Platform/CrayPrgEnv-ToolChain)
+  include(Platform/CrayPrgEnv)
 endif()
