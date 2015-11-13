@@ -151,12 +151,14 @@ target system prefixes, whereas executables which must be run as part of the bui
 should be found only on the host and not on the target. This is the purpose of
 the ``CMAKE_FIND_ROOT_PATH_MODE_*`` variables.
 
+.. _`Cray Cross-Compile`:
+
 Cross Compiling for the Cray Linux Environment
 ----------------------------------------------
 
 Cross compiling for compute nodes in the Cray Linux Environment can be done
-without needing a seperate toolchain file.  Specifying
-``-DCMAKE_SYSTEM_NAME=CrayLinuxEnvironment`` on the CMake comamnd line will
+without needing a separate toolchain file.  Specifying
+``-DCMAKE_SYSTEM_NAME=CrayLinuxEnvironment`` on the CMake command line will
 ensure that the appropriate build settings and search paths are configured.
 The platform will pull its configuration from the current environment
 variables and will configure a project to use the compiler wrappers from the
@@ -169,7 +171,7 @@ enabled by setting the ``CRAYPE_LINK_TYPE`` environment variable to
 
 Running CMake without specifying :variable:`CMAKE_SYSTEM_NAME` will
 run the configure step in host mode assuming a standard Linux environment.
-If not overriden, the ``PrgEnv-*`` compiler wrappers will end up getting used,
+If not overridden, the ``PrgEnv-*`` compiler wrappers will end up getting used,
 which if targeting the either the login node or compute node, is likely not the
 desired behavior.  The exception to this would be if you are building directly
 on a NID instead of cross-compiling from a login node. If trying to build
