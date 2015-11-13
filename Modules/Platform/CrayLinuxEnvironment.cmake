@@ -38,8 +38,8 @@ set(CMAKE_DL_LIBS dl)
 
 # Get the install directory of the running cmake to the search directories
 # CMAKE_ROOT is CMAKE_INSTALL_PREFIX/share/cmake, so we need to go two levels up
-get_filename_component(_CMAKE_INSTALL_DIR "${CMAKE_ROOT}" PATH)
-get_filename_component(_CMAKE_INSTALL_DIR "${_CMAKE_INSTALL_DIR}" PATH)
+get_filename_component(__cmake_install_dir "${CMAKE_ROOT}" PATH)
+get_filename_component(__cmake_install_dir "${__cmake_install_dir}" PATH)
 
 
 # Note: Some cray's have the SYSROOT_DIR variable defined, pointing to a copy
@@ -53,7 +53,7 @@ list(APPEND CMAKE_SYSTEM_PREFIX_PATH
   $ENV{SYSROOT_DIR}/usr/local $ENV{SYSROOT_DIR}/usr $ENV{SYSROOT_DIR}/
 
   # CMake install location
-  "${_CMAKE_INSTALL_DIR}"
+  "${__cmake_install_dir}"
   )
 if (NOT CMAKE_FIND_NO_INSTALL_PREFIX)
   list(APPEND CMAKE_SYSTEM_PREFIX_PATH
@@ -97,7 +97,6 @@ list(APPEND CMAKE_Fortran_IMPLICIT_INCLUDE_DIRECTORIES
 set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS TRUE)
 
 # Check to see if we're using the cray compiler wrapers and load accordingly if we are
-# Make sure we have the appropriate environment loaded
 if(DEFINED ENV{CRAYPE_DIR})
   set(_CRAYPE_ROOT "$ENV{CRAYPE_DIR}")
 elseif(DEFINED ENV{ASYNCPE_DIR})
