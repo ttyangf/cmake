@@ -14,7 +14,7 @@ else()
 endif()
 
 if(NOT __CrayLinuxEnvironment)
-  message(FATAL_ERROR "The CrayPrgEnv tolchain file must not be used on its own and is intented to be included by the CrayLinuxEnvironment platform file")
+  message(FATAL_ERROR "The CrayPrgEnv platform file must not be used on its own and is intented to be included by the CrayLinuxEnvironment platform file")
 endif()
 
 # Flags for the Cray wrappers
