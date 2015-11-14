@@ -97,7 +97,8 @@ list(APPEND CMAKE_Fortran_IMPLICIT_INCLUDE_DIRECTORIES
 # Enable use of lib64 search path variants by default.
 set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS TRUE)
 
-# Check to see if we're using the cray compiler wrapers and load accordingly if we are
+# Check to see if we're using the cray compiler wrappers and load accordingly
+# if we are
 if(DEFINED ENV{CRAYPE_DIR})
   set(_CRAYPE_ROOT "$ENV{CRAYPE_DIR}")
 elseif(DEFINED ENV{ASYNCPE_DIR})
