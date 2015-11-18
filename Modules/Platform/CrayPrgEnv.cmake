@@ -89,13 +89,6 @@ function(__cray_list_intersect OUTPUT INPUT0)
   set(${OUTPUT} ${${OUTPUT}} PARENT_SCOPE)
 endfunction()
 
-macro(__cray_debug_print_list VAR)
-  message("${VAR}:")
-  foreach(I IN LISTS ${VAR})
-    message("  ${I}")
-  endforeach()
-endmacro()
-
 # Parse the implicit directories used by the wrappers
 get_property(__langs GLOBAL PROPERTY ENABLED_LANGUAGES)
 foreach(__lang IN LISTS __langs)
@@ -138,10 +131,6 @@ foreach(__lang IN LISTS __langs)
   endforeach()
   list(APPEND CMAKE_${__lang}_IMPLICIT_LINK_LIBRARIES ${__cray_flag_args})
   __cray_list_remove_duplicates(CMAKE_${__lang}_IMPLICIT_LINK_LIBRARIES)
-
-  __cray_debug_print_list(CMAKE_${__lang}_IMPLICIT_INCLUDE_DIRECTORIES)
-  __cray_debug_print_list(CMAKE_${__lang}_IMPLICIT_LINK_DIRECTORIES)
-  __cray_debug_print_list(CMAKE_${__lang}_IMPLICIT_LINK_LIBRARIES)
 endforeach()
 
 # Determine the common directories between all languages and add them
