@@ -154,8 +154,8 @@ int cmCPackDragNDropGenerator::InitializeInternal()
       }
 
     std::vector<std::string> languages;
-    cmSystemTools::ExpandListArgument(this->GetOption("CPACK_DMG_SLA_LANGUAGES"),
-                                      languages);
+    cmSystemTools::ExpandListArgument(
+      this->GetOption("CPACK_DMG_SLA_LANGUAGES"), languages);
     if(languages.empty())
       {
       cmCPackLogger(cmCPackLog::LOG_ERROR,
