@@ -41,7 +41,9 @@ void RegexExplorer::on_regularExpression_textChanged(const QString& text)
 #else
   m_regex = text.toStdString();
 #endif
-  bool validExpression = m_regexParser.compile(m_regex);
+
+  bool validExpression =
+    stripEscapes(m_regex) && m_regexParser.compile(m_regex);
   if(!validExpression)
     {
     m_regexParser.set_invalid();
@@ -114,4 +116,51 @@ void RegexExplorer::clearMatch()
 {
   match0->clear();
   matchN->clear();
+}
+
+bool RegexExplorer::stripEscapes(std::string& source)
+{
+  const char* in = source.c_str();
+
+  std::string result;
+  result.reserve(source.size());
+
+  for(char inc = *in; inc != '\0'; inc = *++in)
+    {
+    if(inc == '\\')
+      {
+      char nextc = in[1];
+      if(nextc == 't')
+        {
+        result.append(1, '\t');
+        in++;
+        }
+      else if(nextc == 'n')
+        {
+        result.append(1, '\n');
+        in++;
+        }
+      else if(nextc == 't')
+        {
+        result.append(1, '\t');
+        in++;
+        }
+      else if(isalnum(nextc) || nextc == '\0')
+        {
+        return false;
+        }
+      else
+        {
+        result.append(1, nextc);
+        in++;
+        }
+      }
+    else
+      {
+        result.append(1, inc);
+      }
+    }
+
+    source = result;
+    return true;
 }

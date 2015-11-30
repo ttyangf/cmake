@@ -35,6 +35,7 @@ private slots:
 
 private:
   static void setStatusColor(QWidget* widget, bool successful);
+  static bool stripEscapes(std::string& regex);
 
   void clearMatch();
 
