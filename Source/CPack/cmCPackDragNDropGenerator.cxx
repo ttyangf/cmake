@@ -69,6 +69,7 @@ static const char* SLASTREnglish =
 
 //----------------------------------------------------------------------
 cmCPackDragNDropGenerator::cmCPackDragNDropGenerator()
+  : singleLicense(false)
 {
   // default to one package file for components
   this->componentPackageMethod = ONE_PACKAGE;
