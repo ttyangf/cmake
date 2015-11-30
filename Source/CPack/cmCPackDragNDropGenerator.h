@@ -48,7 +48,7 @@ protected:
 
 private:
   std::string slaDirectory;
-  bool singleLicense = false;
+  bool singleLicense;
 
   void WriteLicense(cmGeneratedFileStream& outputStream, int licenseNumber,
     std::string licenseLanguage, std::string licenseFile = "");
