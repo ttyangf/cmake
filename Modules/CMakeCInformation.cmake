@@ -60,6 +60,18 @@ if (NOT _INCLUDED_FILE)
   include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_BASE_NAME}
     OPTIONAL RESULT_VARIABLE _INCLUDED_FILE)
 endif ()
+
+# load any compiler-wrapper specific information
+if (CMAKE_C_COMPILER_WRAPPER)
+  set(_INCLUDED_WRAPPER_FILE 0)
+  if (CMAKE_C_COMPILER_ID)
+    include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_C_COMPILER_WRAPPER}-${CMAKE_C_COMPILER_ID}-C OPTIONAL RESULT_VARIABLE _INCLUDED_WRAPPER_FILE)
+  endif()
+  if (NOT _INCLUDED_WRAPPER_FILE)
+    include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_C_COMPILER_WRAPPER}-C OPTIONAL RESULT_VARIABLE _INCLUDED_WRAPPER_FILE)
+  endif ()
+endif ()
+
 # We specify the compiler information in the system file for some
 # platforms, but this language may not have been enabled when the file
 # was first included.  Include it again to get the language info.
