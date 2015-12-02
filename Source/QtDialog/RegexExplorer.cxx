@@ -12,7 +12,7 @@
 
 #include "RegexExplorer.h"
 
-RegexExplorer::RegexExplorer(QWidget* p) : m_matched(false)
+RegexExplorer::RegexExplorer(QWidget* p) : QDialog(p), m_matched(false)
 {
   this->setupUi(this);
 
@@ -96,8 +96,8 @@ void RegexExplorer::on_matchNumber_currentIndexChanged(int index)
     return;
     }
 
-  QVariant data = matchNumber->itemData(index);
-  int idx = data.toInt();
+  QVariant itemData = matchNumber->itemData(index);
+  int idx = itemData.toInt();
 
   if(idx < 1 || idx >= cmsys::RegularExpression::NSUBEXP)
     {
