@@ -70,9 +70,6 @@ if (CMAKE_C_COMPILER_WRAPPER)
   if (NOT _INCLUDED_WRAPPER_FILE)
     include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_C_COMPILER_WRAPPER}-C OPTIONAL RESULT_VARIABLE _INCLUDED_WRAPPER_FILE)
   endif ()
-  if (NOT _INCLUDED_WRAPPER_FILE)
-    include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_C_COMPILER_WRAPPER} OPTIONAL)
-  endif ()
 endif ()
 
 # We specify the compiler information in the system file for some
