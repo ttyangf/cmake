@@ -272,6 +272,7 @@ find_path(JAVA_INCLUDE_PATH jni.h
 )
 
 find_path(JAVA_INCLUDE_PATH2 NAMES jni_md.h jniport.h
+  PATHS
   ${JAVA_INCLUDE_PATH}
   ${JAVA_INCLUDE_PATH}/darwin
   ${JAVA_INCLUDE_PATH}/win32
