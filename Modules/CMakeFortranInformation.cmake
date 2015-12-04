@@ -41,7 +41,7 @@ endif ()
 
 # load any compiler-wrapper specific information
 if (CMAKE_Fortran_COMPILER_WRAPPER)
-  __cmake_include_compiler_wrapper(CXX)
+  __cmake_include_compiler_wrapper(Fortran)
 endif ()
 
 # We specify the compiler information in the system file for some
