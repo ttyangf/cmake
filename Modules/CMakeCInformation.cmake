@@ -18,6 +18,8 @@
 # It also loads a system - compiler - processor (or target hardware)
 # specific file, which is mainly useful for crosscompiling and embedded systems.
 
+include(CMakeLanguageInformation)
+
 # some compilers use different extensions (e.g. sdcc uses .rel)
 # so set the extension here first so it can be overridden by the compiler specific file
 if(UNIX)
@@ -63,13 +65,7 @@ endif ()
 
 # load any compiler-wrapper specific information
 if (CMAKE_C_COMPILER_WRAPPER)
-  set(_INCLUDED_WRAPPER_FILE 0)
-  if (CMAKE_C_COMPILER_ID)
-    include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_C_COMPILER_WRAPPER}-${CMAKE_C_COMPILER_ID}-C OPTIONAL RESULT_VARIABLE _INCLUDED_WRAPPER_FILE)
-  endif()
-  if (NOT _INCLUDED_WRAPPER_FILE)
-    include(Platform/${CMAKE_SYSTEM_NAME}-${CMAKE_C_COMPILER_WRAPPER}-C OPTIONAL RESULT_VARIABLE _INCLUDED_WRAPPER_FILE)
-  endif ()
+  __cmake_include_compiler_wrapper(C)
 endif ()
 
 # We specify the compiler information in the system file for some
