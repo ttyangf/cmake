@@ -34,7 +34,7 @@
 # ``TIFF_INCLUDE_DIR``
 #   the directory containing the TIFF headers
 # ``TIFF_LIBRARY``
-# the path to the TIFF library
+#   the path to the TIFF library
 
 #=============================================================================
 # Copyright 2002-2009 Kitware, Inc.
