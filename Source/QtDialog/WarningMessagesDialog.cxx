@@ -12,8 +12,8 @@
 
 #include "WarningMessagesDialog.h"
 
-WarningMessagesDialog::WarningMessagesDialog(QWidget* parent, QCMake* instance)
-  : QDialog(parent), cmakeInstance(instance)
+WarningMessagesDialog::WarningMessagesDialog(QWidget* prnt, QCMake* instance)
+  : QDialog(prnt), cmakeInstance(instance)
 {
   this->setupUi(this);
   this->setInitialValues();
