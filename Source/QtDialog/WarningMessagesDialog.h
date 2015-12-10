@@ -27,7 +27,7 @@ class WarningMessagesDialog : public QDialog, public Ui_MessagesDialog
   Q_OBJECT
 
 public:
-  WarningMessagesDialog(QWidget* parent, QCMake* instance);
+  WarningMessagesDialog(QWidget* prnt, QCMake* instance);
 
 private slots:
   /**
