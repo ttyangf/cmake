@@ -70,17 +70,17 @@ run_child(WORKING_DIRECTORY ${TOP}/module
 #-----------------------------------------------------------------------------
 # Import initial content into the repository.
 message("Importing content...")
-create_content(import)
-file(WRITE ${TOP}/import/HEAD "HEAD\n")
-file(WRITE ${TOP}/import/master "master\n")
 
 # Import the content into the repository.
-run_child(WORKING_DIRECTORY ${TOP}/import
-  COMMAND ${GIT} init
+run_child(WORKING_DIRECTORY ${TOP}
+  COMMAND ${GIT} clone repo.git import
   )
 file(REMOVE_RECURSE ${TOP}/import/.git/hooks)
 file(APPEND ${TOP}/import/.git/config "
 ${AUTHOR_CONFIG}")
+create_content(import)
+file(WRITE ${TOP}/import/HEAD "HEAD\n")
+file(WRITE ${TOP}/import/master "master\n")
 run_child(WORKING_DIRECTORY ${TOP}/import
   COMMAND ${GIT} add .
   )
@@ -94,7 +94,7 @@ run_child(WORKING_DIRECTORY ${TOP}/import
   COMMAND ${GIT} commit -m "Initial content"
   )
 run_child(WORKING_DIRECTORY ${TOP}/import
-  COMMAND ${GIT} push ../repo.git master:refs/heads/master
+  COMMAND ${GIT} push origin master:refs/heads/master
   )
 
 #-----------------------------------------------------------------------------
