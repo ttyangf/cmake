@@ -258,5 +258,7 @@ if("${CPACK_GENERATOR}" STREQUAL "WIX")
     list(APPEND CPACK_WIX_PATCH_FILE
       "@CMake_SOURCE_DIR@/Utilities/Release/WiX/patch_desktop_shortcut.xml"
     )
+
+    set(CPACK_WIX_CANDLE_EXTRA_FLAGS "-dBUILD_QtDialog=1")
   endif()
 endif()
