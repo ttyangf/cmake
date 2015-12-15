@@ -252,6 +252,10 @@ if("${CPACK_GENERATOR}" STREQUAL "WIX")
     "@CMake_SOURCE_DIR@/Utilities/Release/WiX/patch_path_env.xml"
   )
 
+  set(CPACK_WIX_TEMPLATE
+    "@CMake_SOURCE_DIR@/Utilities/Release/WiX/WIX.template.in"
+  )
+
   set(BUILD_QtDialog "@BUILD_QtDialog@")
 
   if(BUILD_QtDialog)
