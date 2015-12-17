@@ -373,11 +373,6 @@ KWSYS_FILES="\
   SystemTools.hxx \
   Terminal.h"
 
-KWIML_FILES='
-  ABI.h
-  INT.h
-'
-
 # Display CMake bootstrap usage
 cmake_usage()
 {
@@ -453,6 +448,18 @@ cmake_error()
     echo "---------------------------------------------"
   fi
   exit ${res}
+}
+
+cmake_generate_file ()
+{
+  OUTFILE="$1"
+  CONTENT="$2"
+  echo "$CONTENT" > "$OUTFILE.tmp"
+  if "${_diff}" "$OUTFILE.tmp" "$OUTFILE" > /dev/null 2> /dev/null ; then
+    rm -f "$OUTFILE.tmp"
+  else
+    mv -f "$OUTFILE.tmp" "$OUTFILE"
+  fi
 }
 
 # Replace KWSYS_NAMESPACE with cmsys
@@ -700,11 +707,6 @@ cd "${cmake_bootstrap_dir}"
 [ -d "cmsys" ] || mkdir "cmsys"
 if [ ! -d "cmsys" ]; then
   cmake_error 4 "Cannot create directory ${cmake_bootstrap_dir}/cmsys"
-fi
-
-[ -d "cmIML" ] || mkdir "cmIML"
-if [ ! -d "cmIML" ]; then
-  cmake_error 12 "Cannot create directory ${cmake_bootstrap_dir}/cmIML"
 fi
 
 # Delete all the bootstrap files
@@ -1280,13 +1282,13 @@ for a in ${KWSYS_FILES}; do
      "${cmake_bootstrap_dir}/cmsys/${a}" KWSYS_NAMESPACE cmsys
 done
 
-for a in ${KWIML_FILES}; do
-  cmake_replace_string "${cmake_source_dir}/Utilities/KWIML/${a}.in" \
-     "${cmake_bootstrap_dir}/cmIML/${a}" KWIML cmIML
-done
+cmake_generate_file "${cmake_bootstrap_dir}/cm_kwiml.h" "
+#include \"${cmake_source_dir}/Utilities/KWIML/include/kwiml/abi.h\"
+#include \"${cmake_source_dir}/Utilities/KWIML/include/kwiml/int.h\"
+"
 
 # Generate Makefile
-dep="cmConfigure.h cmsys/*.hxx cmsys/*.h `cmake_escape \"${cmake_source_dir}\"`/Source/*.h"
+dep="cmConfigure.h cm_kwiml.h cmsys/*.hxx cmsys/*.h `cmake_escape \"${cmake_source_dir}\"`/Source/*.h"
 objs=""
 for a in ${CMAKE_CXX_SOURCES} ${CMAKE_C_SOURCES} ${KWSYS_CXX_SOURCES} ${KWSYS_C_SOURCES}; do
   objs="${objs} ${a}.o"
