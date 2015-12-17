@@ -1,6 +1,6 @@
 /*============================================================================
-  Kitware Information Macro Library
-  Copyright 2010-2011 Kitware, Inc.
+  CMake - Cross Platform Makefile Generator
+  Copyright 2000-2015 Kitware, Inc., Insight Software Consortium
 
   Distributed under the OSI-approved BSD License (the "License");
   see accompanying file Copyright.txt for details.
@@ -9,14 +9,10 @@
   implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the License for more information.
 ============================================================================*/
-#include "test.h"
-#include KWIML_HEADER(ABI.h)
-#include "test_ABI_endian.h"
-int test_ABI_C(void)
-{
-  if(!test_ABI_endian())
-    {
-    return 0;
-    }
-  return 1;
-}
+#ifndef cm_kwiml_h
+#define cm_kwiml_h
+
+#include "KWIML/include/kwiml/abi.h"
+#include "KWIML/include/kwiml/int.h"
+
+#endif
