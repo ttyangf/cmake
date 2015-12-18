@@ -1282,13 +1282,8 @@ for a in ${KWSYS_FILES}; do
      "${cmake_bootstrap_dir}/cmsys/${a}" KWSYS_NAMESPACE cmsys
 done
 
-cmake_generate_file "${cmake_bootstrap_dir}/cm_kwiml.h" "
-#include \"${cmake_source_dir}/Utilities/KWIML/include/kwiml/abi.h\"
-#include \"${cmake_source_dir}/Utilities/KWIML/include/kwiml/int.h\"
-"
-
 # Generate Makefile
-dep="cmConfigure.h cm_kwiml.h cmsys/*.hxx cmsys/*.h `cmake_escape \"${cmake_source_dir}\"`/Source/*.h"
+dep="cmConfigure.h cmsys/*.hxx cmsys/*.h `cmake_escape \"${cmake_source_dir}\"`/Source/*.h"
 objs=""
 for a in ${CMAKE_CXX_SOURCES} ${CMAKE_C_SOURCES} ${KWSYS_CXX_SOURCES} ${KWSYS_C_SOURCES}; do
   objs="${objs} ${a}.o"
@@ -1328,9 +1323,9 @@ cmake_cxx_flags_SystemTools="
   -DKWSYS_CXX_HAS_UTIMES=${KWSYS_CXX_HAS_UTIMES}
 "
 cmake_c_flags="${cmake_c_flags}-I`cmake_escape \"${cmake_bootstrap_dir}\"` -I`cmake_escape \"${cmake_source_dir}/Source\"` \
-  -I`cmake_escape \"${cmake_bootstrap_dir}\"`"
+  -I`cmake_escape \"${cmake_source_dir}/Utilities\"`"
 cmake_cxx_flags="${cmake_cxx_flags} -I`cmake_escape \"${cmake_bootstrap_dir}\"` -I`cmake_escape \"${cmake_source_dir}/Source\"` \
-  -I`cmake_escape \"${cmake_bootstrap_dir}\"`"
+  -I`cmake_escape \"${cmake_source_dir}/Utilities\"`"
 echo "cmake: ${objs}" > "${cmake_bootstrap_dir}/Makefile"
 echo "	${cmake_cxx_compiler} ${cmake_ld_flags} ${cmake_cxx_flags} ${objs} -o cmake" >> "${cmake_bootstrap_dir}/Makefile"
 for a in ${CMAKE_CXX_SOURCES}; do
