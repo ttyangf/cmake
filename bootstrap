@@ -450,18 +450,6 @@ cmake_error()
   exit ${res}
 }
 
-cmake_generate_file ()
-{
-  OUTFILE="$1"
-  CONTENT="$2"
-  echo "$CONTENT" > "$OUTFILE.tmp"
-  if "${_diff}" "$OUTFILE.tmp" "$OUTFILE" > /dev/null 2> /dev/null ; then
-    rm -f "$OUTFILE.tmp"
-  else
-    mv -f "$OUTFILE.tmp" "$OUTFILE"
-  fi
-}
-
 # Replace KWSYS_NAMESPACE with cmsys
 cmake_replace_string ()
 {
