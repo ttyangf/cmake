@@ -21,6 +21,7 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities.cmcurl"
   "Utilities.cmexpat."
   "Utilities.cmlibarchive"
+  "warning: declaration of .single. shadows a global declaration"
   "/usr/include.*warning.*shadowed declaration is here"
   "/usr/bin/ld.*warning.*-..*directory.name.*bin.*does not exist"
   "Redeclaration of .send..... with a different storage class specifier"
