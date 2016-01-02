@@ -1693,7 +1693,6 @@ cmGlobalXCodeGenerator::AddCommandsToBuildPhase(cmXCodeObject* buildphase,
   makecmd += this->ConvertToRelativeForMake(
                                           (makefile+"$CONFIGURATION").c_str());
   makecmd += " all";
-  cmSystemTools::ReplaceString(makecmd, "\\ ", "\\\\ ");
   buildphase->AddAttribute("shellScript",
                            this->CreateString(makecmd.c_str()));
   buildphase->AddAttribute("showEnvVarsInLog",
@@ -4022,8 +4021,8 @@ void cmGlobalXCodeGenerator::AppendFlag(std::string& flags,
 
   // We escape a flag as follows:
   //   - Place each flag in single quotes ''
-  //   - Escape a single quote as \\'
-  //   - Escape a backslash as \\\\ since it itself is an escape
+  //   - Escape a single quote as \'
+  //   - Escape a backslash as \\ since it itself is an escape
   // Note that in the code below we need one more level of escapes for
   // C string syntax in this source file.
   //
@@ -4043,16 +4042,16 @@ void cmGlobalXCodeGenerator::AppendFlag(std::string& flags,
       {
       if (this->XcodeVersion >= 40)
         {
-        flags += "'\\\\''";
+        flags += "'\\''";
         }
       else
         {
-        flags += "\\\\'";
+        flags += "\\'";
         }
       }
     else if(*c == '\\')
       {
-      flags += "\\\\\\\\";
+      flags += "\\\\";
       }
     else
       {
