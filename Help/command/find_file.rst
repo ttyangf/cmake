@@ -30,4 +30,5 @@ find_file
 .. |CMAKE_FIND_ROOT_PATH_MODE_XXX| replace::
    :variable:`CMAKE_FIND_ROOT_PATH_MODE_INCLUDE`
 
+.. |CMAKE_PATH_NAME| replace:: ``INCLUDE``
 .. include:: FIND_XXX.txt

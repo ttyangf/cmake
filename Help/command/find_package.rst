@@ -238,7 +238,9 @@ enabled.
 
 1. Search paths specified in cmake-specific cache variables.  These
    are intended to be used on the command line with a ``-DVAR=value``.
-   This can be skipped if ``NO_CMAKE_PATH`` is passed::
+   This can be skipped if ``NO_CMAKE_PATH`` is passed or if
+   :variable:`CMAKE_FIND_NO_CMAKE_PATH` is set and contains ``ALL`` or
+   ``PACKAGE``::
 
      CMAKE_PREFIX_PATH
      CMAKE_FRAMEWORK_PATH
@@ -246,7 +248,9 @@ enabled.
 
 2. Search paths specified in cmake-specific environment variables.
    These are intended to be set in the user's shell configuration.
-   This can be skipped if ``NO_CMAKE_ENVIRONMENT_PATH`` is passed::
+   This can be skipped if ``NO_CMAKE_ENVIRONMENT_PATH`` is passed or
+   :variable:`CMAKE_FIND_NO_CMAKE_ENVIRONMENT_PATH` is set and contains
+   ``ALL`` or ``PACKAGE``::
 
      <package>_DIR
      CMAKE_PREFIX_PATH
@@ -259,9 +263,10 @@ enabled.
    be specified with the ``PATHS`` option.
 
 4. Search the standard system environment variables.  This can be
-   skipped if ``NO_SYSTEM_ENVIRONMENT_PATH`` is passed.  Path entries
-   ending in ``/bin`` or ``/sbin`` are automatically converted to their
-   parent directories::
+   skipped if ``NO_SYSTEM_ENVIRONMENT_PATH`` is passed or
+   :variable:`CMAKE_FIND_NO_SYSTEM_ENVIRONMENT_PATH` is set and contains
+   ``ALL`` or ``PACKAGE``.  Path entries ending in ``/bin`` or ``/sbin``
+   are automatically converted to their parent directories::
 
      PATH
 
