@@ -1735,7 +1735,7 @@ cmGlobalXCodeGenerator::AddCommandsToBuildPhase(cmXCodeObject* buildphase,
     }
 
   std::string cdir = this->CurrentLocalGenerator->GetCurrentBinaryDirectory();
-  cdir = this->ConvertToRelativeForXCode(cdir.c_str());
+  cdir = this->ConvertToRelativeForMake(cdir.c_str());
   std::string makecmd = "make -C ";
   makecmd += cdir;
   makecmd += " -f ";
@@ -2156,10 +2156,8 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmGeneratorTarget* gtgt,
       this->CurrentLocalGenerator
         ->GenerateAppleInfoPList(gtgt, "$(EXECUTABLE_NAME)",
                                  plist.c_str());
-      std::string path =
-        this->ConvertToRelativeForXCode(plist.c_str());
       buildSettings->AddAttribute("INFOPLIST_FILE",
-                                  this->CreateString(path.c_str()));
+                                  this->CreateString(plist));
       }
     else if(this->XcodeVersion >= 22)
       {
@@ -2205,10 +2203,8 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmGeneratorTarget* gtgt,
       this->CurrentLocalGenerator
         ->GenerateFrameworkInfoPList(gtgt, "$(EXECUTABLE_NAME)",
                                      plist.c_str());
-      std::string path =
-        this->ConvertToRelativeForXCode(plist.c_str());
       buildSettings->AddAttribute("INFOPLIST_FILE",
-                                  this->CreateString(path.c_str()));
+                                  this->CreateString(plist));
       }
     else
       {
@@ -2248,10 +2244,8 @@ void cmGlobalXCodeGenerator::CreateBuildSettings(cmGeneratorTarget* gtgt,
       this->CurrentLocalGenerator
         ->GenerateAppleInfoPList(gtgt, "$(EXECUTABLE_NAME)",
                                  plist.c_str());
-      std::string path =
-        this->ConvertToRelativeForXCode(plist.c_str());
       buildSettings->AddAttribute("INFOPLIST_FILE",
-                                  this->CreateString(path.c_str()));
+                                  this->CreateString(plist));
 
       }
     }
@@ -3905,12 +3899,6 @@ void cmGlobalXCodeGenerator::GetDocumentation(cmDocumentationEntry& entry)
 
 //----------------------------------------------------------------------------
 std::string cmGlobalXCodeGenerator::ConvertToRelativeForMake(const char* p)
-{
-  return cmSystemTools::ConvertToOutputPath(p);
-}
-
-//----------------------------------------------------------------------------
-std::string cmGlobalXCodeGenerator::ConvertToRelativeForXCode(const char* p)
 {
   return cmSystemTools::ConvertToOutputPath(p);
 }
