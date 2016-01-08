@@ -1,0 +1,21 @@
+This variable enables the |NO_XXX_PATH| option to be on by default for the
+various find commands.  It's value is a list with valid entries being:
+
+``INCLUDE``
+ Enable the option for the :command:`find_file` and :command:`find_path`
+ commands.
+
+``LIBRARY``
+ Enable the option for the :command:`find_library` command.
+
+``PACKAGE``
+ Enable the option for the :command:`find_package` command.
+
+``PROGRAM``
+ Enable the option for the :command:`find_program` command.
+
+``ALL``
+ Enable the option for all find commands.
+
+The list can contain any combination of valid entries in any order to affect
+the specified find command.
