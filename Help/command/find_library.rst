@@ -30,7 +30,6 @@ find_library
 .. |CMAKE_FIND_ROOT_PATH_MODE_XXX| replace::
    :variable:`CMAKE_FIND_ROOT_PATH_MODE_LIBRARY`
 
-.. |CMAKE_PATH_NAME| replace:: ``LIBRARY``
 .. include:: FIND_XXX.txt
 
 When more than one value is given to the ``NAMES`` option this command by

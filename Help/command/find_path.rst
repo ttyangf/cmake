@@ -30,7 +30,6 @@ find_path
 .. |CMAKE_FIND_ROOT_PATH_MODE_XXX| replace::
    :variable:`CMAKE_FIND_ROOT_PATH_MODE_INCLUDE`
 
-.. |CMAKE_PATH_NAME| replace:: ``INCLUDE``
 .. include:: FIND_XXX.txt
 
 When searching for frameworks, if the file is specified as ``A/b.h``, then

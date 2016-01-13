@@ -309,39 +309,8 @@ void cmFindCommon::GetIgnoredPaths(std::set<std::string>& ignore)
 }
 
 //----------------------------------------------------------------------------
-inline bool ListContains2Helper(const cmMakefile* make,
-  const std::string& cmakeVar, const std::string& test1,
-  const std::string& test2)
-{
-  std::vector<std::string> v;
-  cmSystemTools::ExpandListArgument(
-    make->GetSafeDefinition(cmakeVar), v, true);
-  for(std::vector<std::string>::const_iterator i = v.begin();
-    i != v.end(); ++i)
-    {
-    if(*i == test1 || *i == test2)
-      {
-      return true;
-      }
-    }
-  return false;
-}
-
-//----------------------------------------------------------------------------
 bool cmFindCommon::CheckCommonArgument(std::string const& arg)
 {
-  // Initialize global path options
-  this->NoDefaultPath = ListContains2Helper(this->Makefile,
-    "CMAKE_FIND_NO_DEFAULT_PATH", "ALL", this->CMakePathName);
-  this->NoCMakeEnvironmentPath = ListContains2Helper(this->Makefile,
-    "CMAKE_FIND_NO_CMAKE_ENVIRONMENT_PATH", "ALL", this->CMakePathName);
-  this->NoCMakePath = ListContains2Helper(this->Makefile,
-    "CMAKE_FIND_NO_CMAKE_PATH", "ALL", this->CMakePathName);
-  this->NoSystemEnvironmentPath = ListContains2Helper(this->Makefile,
-    "CMAKE_FIND_NO_SYSTEM_ENVIRONMENT_PATH", "ALL", this->CMakePathName);
-  this->NoCMakeSystemPath = ListContains2Helper(this->Makefile,
-    "CMAKE_FIND_NO_CMAKE_SYSTEM_PATH", "ALL", this->CMakePathName);
-
   if(arg == "NO_DEFAULT_PATH")
     {
     this->NoDefaultPath = true;
