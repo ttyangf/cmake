@@ -1,6 +1,7 @@
 #.rst:
 # FindDCMTK
 # ---------
+#
 # Find DCMTK libraries and applications
 #
 # The module defines the following variables::
@@ -71,9 +72,9 @@
 #
 # What to do if my project finds a different version of DCMTK?
 #
-# Remove DCMTK entry from the CMake registry per :command:`find_package`
+# Remove DCMTK entry from the CMake cache per :command:`find_package`
 # documentation.
-#
+
 #=============================================================================
 # Copyright 2004-2009 Kitware, Inc.
 # Copyright 2009-2010 Mathieu Malaterre <mathieu.malaterre@gmail.com>
