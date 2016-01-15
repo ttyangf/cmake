@@ -2695,7 +2695,7 @@ bool cmSystemTools::ChangeRPath(std::string const& file,
   // If the resulting rpath is empty, just remove the entire entry instead.
   if (remove_rpath)
     {
-    return RemoveRPath(file, emsg, changed);
+    return cmSystemTools::RemoveRPath(file, emsg, changed);
     }
 
   {
