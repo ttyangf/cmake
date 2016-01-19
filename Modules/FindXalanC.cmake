@@ -123,8 +123,8 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(XalanC
                                   FAIL_MESSAGE "Failed to find XalanC")
 
 if(XalanC_FOUND)
-  set(XalanC_INCLUDE_DIRS "${XalanC_INCLUDE_DIR}")
-  set(XalanC_LIBRARIES "${XalanC_LIBRARY}")
+  set(XalanC_INCLUDE_DIRS "${XalanC_INCLUDE_DIR}" ${XercesC_INCLUDE_DIRS})
+  set(XalanC_LIBRARIES "${XalanC_LIBRARY}" ${XercesC_LIBRARIES})
 
   # For header-only libraries
   if(NOT TARGET XalanC::XalanC)
