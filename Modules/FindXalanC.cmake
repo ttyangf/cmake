@@ -71,6 +71,9 @@ function(_XalanC_GET_VERSION  version_hdr)
         endif()
 
         set(XalanC_VERSION "${XalanC_MAJOR}.${XalanC_MINOR}.${XalanC_PATCH}" PARENT_SCOPE)
+        set(XalanC_VERSION_MAJOR "${XalanC_MAJOR}" PARENT_SCOPE)
+        set(XalanC_VERSION_MINOR "${XalanC_MINOR}" PARENT_SCOPE)
+        set(XalanC_VERSION_PATCH "${XalanC_PATCH}" PARENT_SCOPE)
     else()
         message(FATAL_ERROR "Include file ${version_hdr} does not exist or does not contain expected version information")
     endif()
@@ -90,18 +93,22 @@ if(NOT XalanC_LIBRARY)
   # Find all XalanC libraries
   find_library(XalanC_LIBRARY_RELEASE
                NAMES "Xalan-C" "xalan-c"
-                     "Xalan-C_${XalanC_MAJOR}"
-                     "Xalan-C_${XalanC_MAJOR}_${XalanC_MINOR}"
+                     "Xalan-C_${XalanC_VERSION_MAJOR}"
+                     "Xalan-C_${XalanC_VERSION_MAJOR}_${XalanC_VERSION_MINOR}"
                DOC "Xalan-C++ libraries (release)")
   find_library(XalanC_LIBRARY_DEBUG
                NAMES "Xalan-CD" "xalan-cd"
-                     "Xalan-C_${XalanC_MAJOR}D"
-                     "Xalan-C_${XalanC_MAJOR}_${XalanC_MINOR}D"
+                     "Xalan-C_${XalanC_VERSION_MAJOR}D"
+                     "Xalan-C_${XalanC_VERSION_MAJOR}_${XalanC_VERSION_MINOR}D"
                DOC "Xalan-C++ libraries (debug)")
   include(${CMAKE_CURRENT_LIST_DIR}/SelectLibraryConfigurations.cmake)
   select_library_configurations(XalanC)
   mark_as_advanced(XalanC_LIBRARY_RELEASE XalanC_LIBRARY_DEBUG)
 endif()
+
+unset(XalanC_VERSION_MAJOR)
+unset(XalanC_VERSION_MINOR)
+unset(XalanC_VERSION_PATCH)
 
 find_package(XercesC 3.0.0 REQUIRED)
 
