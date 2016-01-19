@@ -110,7 +110,7 @@ unset(XalanC_VERSION_MAJOR)
 unset(XalanC_VERSION_MINOR)
 unset(XalanC_VERSION_PATCH)
 
-find_package(XercesC REQUIRED)
+find_package(XercesC) # TODO: require if we are required
 
 include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(XalanC
