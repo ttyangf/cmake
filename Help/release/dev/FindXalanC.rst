@@ -1,5 +1,5 @@
 FindXalanC
 ----------
 
-* A new module to find the Apache Xalan-C++ XSL transform processing
-  library.
+* A :module:`FindXalanC` module was introduced to find the
+  Apache Xalan-C++ XSL transform processing library.
