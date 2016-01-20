@@ -2,20 +2,13 @@
 # FindPNG
 # -------
 #
-# Find libpng, the official reference library for the PNG image format.
+# Find the native PNG includes and library
 #
-# Imported targets
-# ^^^^^^^^^^^^^^^^
 #
-# This module defines the following :prop_tgt:`IMPORTED` target:
 #
-# ``PNG::PNG``
-#   The libpng library, if found.
+# This module searches libpng, the library for working with PNG images.
 #
-# Result variables
-# ^^^^^^^^^^^^^^^^
-#
-# This module will set the following variables in your project:
+# It defines the following variables
 #
 # ``PNG_INCLUDE_DIRS``
 #   where to find png.h, etc.
@@ -29,22 +22,19 @@
 # ``PNG_VERSION_STRING``
 #   the version of the PNG library found (since CMake 2.8.8)
 #
-# Obsolete variables
-# ^^^^^^^^^^^^^^^^^^
-#
-# The following variables may also be set, for backwards compatibility:
+# Also defined, but not for general use are
 #
 # ``PNG_LIBRARY``
 #   where to find the PNG library.
-# ``PNG_INCLUDE_DIR``
-#   where to find the PNG headers (same as PNG_INCLUDE_DIRS)
+#
+# For backward compatiblity the variable PNG_INCLUDE_DIR is also set.
+# It has the same value as PNG_INCLUDE_DIRS.
 #
 # Since PNG depends on the ZLib compression library, none of the above
 # will be defined unless ZLib can be found.
 
 #=============================================================================
 # Copyright 2002-2009 Kitware, Inc.
-# Copyright 2016 Raumfeld
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.
@@ -115,32 +105,6 @@ if(ZLIB_FOUND)
         endif()
       endif ()
 
-      if(NOT TARGET PNG::PNG)
-        add_library(PNG::PNG UNKNOWN IMPORTED)
-        set_target_properties(PNG::PNG PROPERTIES
-          INTERFACE_COMPILE_DEFINITIONS "${PNG_DEFINITIONS}"
-          INTERFACE_INCLUDE_DIRECTORIES "${PNG_INCLUDE_DIRS}"
-          INTERFACE_LIBRARIES "${PNG_LIBRARIES}")
-        if(EXISTS "${PNG_LIBRARY}")
-          set_target_properties(PNG::PNG PROPERTIES
-            IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-            IMPORTED_LOCATION "${PNG_LIBRARY}")
-        endif()
-        if(EXISTS "${PNG_LIBRARY_DEBUG}")
-          set_property(TARGET PNG::PNG APPEND PROPERTY
-            IMPORTED_CONFIGURATIONS DEBUG)
-          set_target_properties(PNG::PNG PROPERTIES
-            IMPORTED_LINK_INTERFACE_LANGUAGES_DEBUG "C"
-            IMPORTED_LOCATION_DEBUG "${PNG_LIBRARY_DEBUG}")
-        endif()
-        if(EXISTS "${PNG_LIBRARY_RELEASE}")
-          set_property(TARGET PNG::PNG APPEND PROPERTY
-            IMPORTED_CONFIGURATIONS RELEASE)
-          set_target_properties(PNG::PNG PROPERTIES
-            IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C"
-            IMPORTED_LOCATION_RELEASE "${PNG_LIBRARY_RELEASE}")
-        endif()
-      endif()
   endif ()
 
   if (PNG_PNG_INCLUDE_DIR AND EXISTS "${PNG_PNG_INCLUDE_DIR}/png.h")
